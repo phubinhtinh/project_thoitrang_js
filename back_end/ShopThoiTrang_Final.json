@@ -1,0 +1,375 @@
+{
+	"info": {
+		"name": "Shop Thoi Trang - Test APIs",
+		"description": "Toàn bộ API test cho Shop Thời Trang",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Xác thực (Auth)",
+			"item": [
+				{
+					"name": "1. Đăng ký tài khoản",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Nguyen Van A\",\n  \"email\": \"test@gmail.com\",\n  \"password\": \"password123\",\n  \"phone\": \"0901234567\"\n}"
+						},
+						"url": "{{baseUrl}}/auth/register"
+					}
+				},
+				{
+					"name": "2. Đăng nhập",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@gmail.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": "{{baseUrl}}/auth/login"
+					}
+				},
+				{
+					"name": "3. Lấy thông tin tài khoản [CẦN TOKEN]",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/auth/profile"
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Danh mục (Categories)",
+			"item": [
+				{
+					"name": "4. Lấy tất cả danh mục",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/categories"
+					}
+				},
+				{
+					"name": "5. Tạo danh mục cha mới",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Thời Trang Nam\",\n  \"description\": \"Chuyên các loại quần áo nam\"\n}"
+						},
+						"url": "{{baseUrl}}/categories"
+					}
+				},
+				{
+					"name": "6. Cập nhật danh mục",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Áo Nam Mùa Đông\"\n}"
+						},
+						"url": "{{baseUrl}}/categories/1"
+					}
+				},
+				{
+					"name": "7. Xóa danh mục",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/categories/1"
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Sản phẩm & Biến thể",
+			"item": [
+				{
+					"name": "8. Lấy toàn bộ Sản phẩm",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/products"
+					}
+				},
+				{
+					"name": "9. Thêm mới 1 Sản phẩm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoryId\": 1,\n  \"name\": \"Áo Polo Yody Cao Cấp\",\n  \"basePrice\": 250000\n}"
+						},
+						"url": "{{baseUrl}}/products"
+					}
+				},
+				{
+					"name": "10. Xem chi tiết Sản Phẩm",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/products/1"
+					}
+				},
+				{
+					"name": "11. Sửa giảm giá Sản phẩm",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"discountPrice\": 180000\n}"
+						},
+						"url": "{{baseUrl}}/products/1"
+					}
+				},
+				{
+					"name": "12. Thêm 1 Biến thể cho Sản Phẩm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"size\": \"L\",\n  \"color\": \"Trắng\",\n  \"stockQuantity\": 100,\n  \"sku\": \"POLO-TRANG-L\"\n}"
+						},
+						"url": "{{baseUrl}}/products/1/variants"
+					}
+				},
+				{
+					"name": "13. Xem các Biến thể của Sản phẩm 1",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/products/1/variants"
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Giỏ hàng (Cart)",
+			"item": [
+				{
+					"name": "14. Thêm hàng vào giỏ [CẦN TOKEN]",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productVariantId\": 1,\n  \"quantity\": 2\n}"
+						},
+						"url": "{{baseUrl}}/cart"
+					}
+				},
+				{
+					"name": "15. Tải Giỏ Hàng & Tính Tổng Tiền [CẦN TOKEN]",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/cart"
+					}
+				},
+				{
+					"name": "16. Sửa số lượng trong giỏ [CẦN TOKEN]",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 5\n}"
+						},
+						"url": "{{baseUrl}}/cart/1"
+					}
+				},
+				{
+					"name": "17. Xóa món hàng khỏi giỏ [CẦN TOKEN]",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/cart/1"
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Đặt hàng (Orders)",
+			"item": [
+				{
+					"name": "18. Chốt Đơn Thanh Toán [CẦN TOKEN]",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentMethod\": \"cod\",\n  \"shippingAddress\": \"123 Đường Số 1, Quận 10, TPHCM\",\n  \"phoneReceiver\": \"0988111222\"\n}"
+						},
+						"url": "{{baseUrl}}/orders/checkout"
+					}
+				},
+				{
+					"name": "19. Xem Danh sách Hóa Đơn [CẦN TOKEN]",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/orders"
+					}
+				},
+				{
+					"name": "20. Trạng thái giao hàng [CẦN TOKEN]",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"delivered\"\n}"
+						},
+						"url": "{{baseUrl}}/orders/1/status"
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Đánh giá (Reviews)",
+			"item": [
+				{
+					"name": "21. Viết Đánh Giá 5 Sao [CẦN TOKEN]",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 5,\n  \"comment\": \"Áo mặc siêu mát cưng xỉu\"\n}"
+						},
+						"url": "{{baseUrl}}/products/1/reviews"
+					}
+				},
+				{
+					"name": "22. Tải toàn bộ Review của Sản Phẩm",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/products/1/reviews"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "your_token_here",
+			"type": "string"
+		}
+	]
+}
