@@ -1,0 +1,137 @@
+# Thiết kế Cơ sở dữ liệu cho Shop Quần Áo (Thời trang)
+
+Để làm một website shop thời trang (quần áo), cơ sở dữ liệu cần hỗ trợ việc quản lý sản phẩm có nhiều thuộc tính (màu sắc, kích cỡ), xử lý giỏ hàng, đơn hàng, và người dùng. Dưới đây là thiết kế các bảng (Tables) cần thiết:
+
+## 1. Bảng `users` (Người dùng)
+Lưu trữ thông tin tài khoản khách hàng và quản trị viên.
+- `id` (INT, Primary Key, Auto Increment)
+- `full_name` (VARCHAR) - Họ và tên
+- `email` (VARCHAR, Unique) - Email đăng nhập
+- `password` (VARCHAR) - Mật khẩu (đã băm)
+- `phone` (VARCHAR) - Số điện thoại
+- `address` (TEXT) - Địa chỉ mặc định
+- `role` (ENUM: 'admin', 'customer') - Vai trò người dùng
+- `created_at` (TIMESTAMP) - Ngày tạo tài khoản
+- `updated_at` (TIMESTAMP) - Ngày cập nhật
+
+## 2. Bảng `categories` (Danh mục sản phẩm)
+Phân loại quần áo (VD: Áo thun, Quần jean, Áo khoác...).
+- `id` (INT, Primary Key, Auto Increment)
+- `name` (VARCHAR) - Tên danh mục
+- `description` (TEXT) - Mô tả danh mục
+- `parent_id` (INT, Foreign Key, Nullable) - ID danh mục cha (dùng cho danh mục đa cấp, VD: Thời trang nam -> Áo sơ mi)
+- `created_at` (TIMESTAMP)
+
+## 3. Bảng `products` (Sản phẩm)
+Thông tin chung về cấu trúc của một mẫu quần áo.
+- `id` (INT, Primary Key, Auto Increment)
+- `category_id` (INT, Foreign Key) - Tham chiếu đến `categories`
+- `name` (VARCHAR) - Tên sản phẩm
+- `description` (TEXT) - Mô tả chi tiết
+- `base_price` (DECIMAL) - Giá gốc
+- `discount_price` (DECIMAL) - Giá khuyến mãi (nếu có)
+- `img` (VARCHAR) - Đường dẫn ảnh đại diện duy nhất
+- `created_at` (TIMESTAMP)
+- `updated_at` (TIMESTAMP)
+
+## 4. Bảng `product_variants` (Biến thể sản phẩm)
+**Rất quan trọng cho shop quần áo:** Một sản phẩm có thể có nhiều màu và nhiều size khác nhau. Bảng này quản lý kho cho từng phiên bản.
+- `id` (INT, Primary Key, Auto Increment)
+- `product_id` (INT, Foreign Key) - Tham chiếu đến `products`
+- `size` (VARCHAR) - Kích cỡ (VD: S, M, L, XL, XXL)
+- `color` (VARCHAR) - Màu sắc (VD: Đen, Trắng, Xanh navy)
+- `stock_quantity` (INT) - Số lượng tồn kho của biến thể này
+- `sku` (VARCHAR, Unique) - Mã SKU quản lý kho riêng cho từng màu/size
+
+## 5. Bảng `orders` (Đơn đặt hàng)
+Lưu thông tin khi khách mua hàng.
+- `id` (INT, Primary Key, Auto Increment)
+- `user_id` (INT, Foreign Key, Nullable) - Có thể null nếu cho phép khách vãng lai mua hàng
+- `total_price` (DECIMAL) - Tổng tiền đơn hàng
+- `status` (ENUM: 'pending', 'processing', 'shipped', 'delivered', 'cancelled') - Trạng thái đơn (Chờ xử lý, Đang giao...)
+- `payment_method` (ENUM: 'cod', 'banking', 'momo', 'vnpay') - Phương thức thanh toán
+- `payment_status` (ENUM: 'unpaid', 'paid') - Trạng thái thanh toán
+- `shipping_address` (TEXT) - Địa chỉ giao hàng cụ thể cho đơn này
+- `phone_receiver` (VARCHAR) - Số điện thoại người nhận
+- `created_at` (TIMESTAMP)
+- `updated_at` (TIMESTAMP)
+
+## 6. Bảng `order_items` (Chi tiết đơn hàng)
+Lưu trữ các mặt hàng cụ thể được đặt trong một đơn hàng.
+- `id` (INT, Primary Key, Auto Increment)
+- `order_id` (INT, Foreign Key) - Tham chiếu đến `orders`
+- `product_variant_id` (INT, Foreign Key) - Phải lưu biến thể nào (size gì, màu gì) được đặt
+- `quantity` (INT) - Số lượng mua
+- `price` (DECIMAL) - Giá mua tại thời điểm đặt hàng (tránh việc sau này đổi giá sản phẩm làm sai lệch lịch sử)
+
+## 7. Bảng `cart_items` (Giỏ hàng)
+Dùng để lưu lại các sản phẩm khách đã thêm vào giỏ nhưng chưa thanh toán.
+- `id` (INT, Primary Key, Auto Increment)
+- `user_id` (INT, Foreign Key) - Tham chiếu đến `users`
+- `product_variant_id` (INT, Foreign Key) - Tham chiếu đến `product_variants`
+- `quantity` (INT) - Số lượng trong giỏ
+- `created_at` (TIMESTAMP)
+
+## 8. Bảng `reviews` (Đánh giá)
+Khách hàng review sản phẩm sau khi mua.
+- `id` (INT, Primary Key, Auto Increment)
+- `user_id` (INT, Foreign Key)
+- `product_id` (INT, Foreign Key)
+- `rating` (INT) - Sao đánh giá (1 đến 5)
+- `comment` (TEXT) - Nội dung bình luận
+- `created_at` (TIMESTAMP)
+
+---
+
+### Mối quan hệ giữa các bảng (Relationships):
+- **1-n:** `categories` -> `products`
+- **1-n:** `products` -> `product_variants`
+- **1-n:** `users` -> `orders`
+- **1-n:** `orders` -> `order_items`
+- **1-n:** `product_variants` -> `order_items`
+- **1-n:** `users` -> `reviews`
+- **1-n:** `products` -> `reviews`
+
+
+---
+
+## 9. Luồng Sự Kiện Tương Tác Của Khách Hàng (User Event Flow)
+
+Dưới đây là sơ đồ luồng chạy thực tế kết nối giữa Hành vi tìm kiếm của khách hàng trên Giao diện (Front-end) và cách Cơ sở dữ liệu xử lý bên dưới (Back-end) cho 5 chức năng cốt lõi.
+
+### 9.0 Luồng Đăng ký & Đăng nhập (Auth Flow)
+* **Bước 1 (Đăng ký):** Khách hàng nhấn "Đăng ký", điền Form (Họ tên, Email, Mật khẩu, Số điện thoại).
+* **Bước 2 (Xử lý Đăng ký):** Hệ thống Backend nhận dữ liệu. Đầu tiên, máy tính quét kiểm tra Mật khẩu và Email xem đã chập trùng trong bảng `users` chưa. Nếu mọi thứ xanh sạch, hệ thống tiến hành Băm (Hash) mật khẩu thành chuỗi ký tự bí mật. Sau cùng, hất 1 dòng Insert vào đáy bảng `users` với thẻ `role = 'customer'`.
+* **Bước 3 (Đăng nhập):** Khách điền Email và Mật khẩu. Bấm Đăng nhập. Trình duyệt đóng gói gửi lệnh lên Server.
+* **Bước 4 (Xác Thực - Check DB):** Máy chủ đâm sầm vào CSDL bảng `users`, lôi cái Email đó ra. Lấy Mật khẩu khách gõ giải băm ra đối chiếu với hệ thống. Nếu khớp 100%, tạo ra vé thông hành (Session/JWT Token) nhét lại vào trình duyệt của khách. Từ đó về sau khách có quyền bỏ đồ vào bảng Giỏ Hàng (`cart_items`) riêng của ông ta.
+
+### 9.1 Luồng Khám phá & Lọc Sản phẩm
+* **Bước 1 (Trang chủ):** Khách truy cập web. Hệ thống quét bảng `categories` in ra Menu dọc toàn bộ danh mục áo quần, đồng thời truy xuất bảng `products` hiển thị 10 sản phẩm Mới nhất.
+* **Bước 2 (Tìm kiếm):** Khách gõ từ khóa "Áo sơ mi". Hệ thống móc nối truy vấn SQL `LIKE '%Áo sơ mi%'` đập vào bảng `products`. 
+* **Bước 3 (Lọc Phân Cấp):** Khách bấm vào danh mục "Thời trang Nam" (ID=1). Máy tính tự động tìm ngầm tất cả các danh mục con, cháu (ID=3,4...) nấp dưới quyền của ID=1 từ bảng `categories`, gom toàn bộ số ID đó để lôi quần áo Nam tương ứng khoe lên màn hình.
+
+### 9.2 Luồng Trải nghiệm Chi tiết & Thêm Giỏ Hàng
+* **Bước 1:** Khách bấm vào xem chi tiết 1 cái "Áo Polo". Máy tính mở bảng `products` lấy Khối Mô tả, Giá và Ảnh Bìa đắp lên giao diện.
+* **Bước 2 (Bấm chọn Biến Thể):** Khách đang đắn đo bấm vào nút "Màu Đen" và "Size XL" ngoài màn hình.
+* **Bước 3 (Check Tồn Kho DB):** Ngay khoảnh khắc bấm nút đó, hệ thống Backend sẽ phóng một luồng SQL ngầm đâm xuống đáy bảng `product_variants` để rà tìm đúng cái dòng (Áo Polo - Đen - XL) đó:
+    * Nếu cột `stock_quantity > 0`: Giao diện lập tức bật sáng nút Đỏ "Thêm Vào Giỏ".
+    * Nếu cột `stock_quantity = 0`: Giao diện bôi xám nút mờ xịt, quăng dòng chữ "Tạm hết hàng".
+* **Bước 4 (Hành động mua):** Khách bấm "Thêm Vào Giỏ". Hệ thống hất 1 câu lệnh Insert tĩnh lặng vào bảng `cart_items` (kẹp ID của khách, ID 103 của biến thể Áo Đen XL, và Số lượng = 1). Khách không hề hay biết, vẫn lướt dạo web bình thường.
+
+### 9.3 Luồng Thanh Toán (Checkout Flow) - Trái tim hệ thống
+* **Bước 1 (Mở Giỏ Hàng):** Khách bấm Icon Giỏ hàng góc phải. Hệ thống chọc vào bảng `cart_items` nối với bảng `products` để in ra danh sách đổ đầy màn hình và tự làm toán `Tổng Tiền = Giá gốc x Số lượng`.
+* **Bước 2:** Khách bấm "Tiến hành Đặt hàng". Form yêu cầu nhập: số điện thoại người nhận (`phone_receiver`) và địa chỉ nhà (`shipping_address`).
+* **Bước 3:** Khách Bấm nút **[ CHỐT ĐƠN ]**. Hệ thống Backend thực hiện một phiên niêm phong cực kì bảo mật (Database Transaction) gồm 4 hành động nối tiếp nhau, đứt 1 bước là hủy toàn bộ:
+    1. **Tạo Đơn Gốc nòng cốt:** Chèn ngầm 1 dòng vào bảng `orders` lưu Tổng tiền, Địa chỉ, Số điện thoại. Trạng thái dán mác mặc định: `pending` (Chờ xử lý).
+    2. **Chép Chi Tiết vĩnh viễn:** Quét toàn bộ giỏ hàng `cart_items`, lùa hết sang bảng lịch sử `order_items` lưu lại vĩnh viễn (kèm theo khóa cứng cái giá tiền hiện tại để chống chủ shop đổi giá sau này làm sai lệch Doanh thu).
+    3. **Trừ Kho Tự Động:** Tính nhẩm khách vừa mua 3 cái Áo Đen XL. Chạy lệnh Update chọc vào bảng `product_variants`, đem số `stock_quantity = stock_quantity - 3`.
+    4. **Dọn Rác Giỏ Hàng:** Chạy lệnh Delete dọn sạch sẽ, lau chùi các dòng rác tàn dư trong bảng `cart_items` của riêng ông khách đó để giỏ hàng trống trơn trở lại.
+* **Bước 4:** Xì ra màn hình thông báo: "🎉 Đặt hàng thành công!".
+
+### 9.4 Luồng Chăm sóc sau Mua & Đánh giá (Review)
+* **Bước 1:** Chiều xuống, Nhân viên kho rà bảng `orders`. Nhặt đơn đi gói hàng cho Shiper, nhân viên bấm Cập nhật trạng thái `shipped` (Đang giao).
+* **Bước 2:** Sáng mai khách nhận được hàng, Shiper báo tổng đài tích Xanh. Đơn hàng chuyển sang trạng thái cuối cùng `delivered` (Giao Thành công).
+* **Bước 3:** Khách rảnh rỗi đăng nhập vào web, vào mục "Đơn hàng của tôi". Lúc này hệ thống bắt được cái chữ `delivered`, nó mới chịu lột xác bung nút chức năng khổng lồ **"Đánh giá Sản phẩm"** ra cho khách ấn.
+* **Bước 4:** Khách cào phím khen chê và thả 5 Sao. Hệ thống nhét thẳng nội dung đó đục vào bảng `reviews`. Điểm hệ số 5 sao được tải lên trang chủ và chia trung bình cộng đắp lên cho uy tín của chiếc Áo đó.
+
+##Công Nghệ sử dụng HTML CSS JAVASCRIPT REACTJS MYSQL 
