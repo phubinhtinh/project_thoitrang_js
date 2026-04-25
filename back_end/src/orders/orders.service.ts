@@ -139,4 +139,25 @@ export class OrdersService {
       data: { paymentStatus: dto.paymentStatus as any },
     });
   }
+
+  /**
+   * User tự xác nhận đã chuyển khoản (chỉ dùng cho payment_method='banking').
+   * Chỉ chủ đơn hàng mới được phép gọi. Demo mode: tự mark `paid`.
+   */
+  async confirmBankingPayment(orderId: number, userId: number) {
+    const order = await this.findOne(orderId);
+    if (order.userId !== userId) {
+      throw new BadRequestException('Bạn không có quyền xác nhận đơn hàng này');
+    }
+    if (order.paymentMethod !== 'banking') {
+      throw new BadRequestException('Đơn hàng này không phải hình thức chuyển khoản');
+    }
+    if (order.paymentStatus === 'paid') {
+      throw new BadRequestException('Đơn hàng đã được xác nhận thanh toán');
+    }
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { paymentStatus: 'paid' },
+    });
+  }
 }

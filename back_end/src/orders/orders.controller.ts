@@ -39,4 +39,9 @@ export class OrdersController {
   updatePaymentStatus(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePaymentStatusDto) {
     return this.ordersService.updatePaymentStatus(id, dto);
   }
+
+  @Post(':id/confirm-banking')
+  confirmBanking(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    return this.ordersService.confirmBankingPayment(id, req.user.userId);
+  }
 }

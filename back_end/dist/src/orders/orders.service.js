@@ -127,6 +127,22 @@ let OrdersService = class OrdersService {
             data: { paymentStatus: dto.paymentStatus },
         });
     }
+    async confirmBankingPayment(orderId, userId) {
+        const order = await this.findOne(orderId);
+        if (order.userId !== userId) {
+            throw new common_1.BadRequestException('Bạn không có quyền xác nhận đơn hàng này');
+        }
+        if (order.paymentMethod !== 'banking') {
+            throw new common_1.BadRequestException('Đơn hàng này không phải hình thức chuyển khoản');
+        }
+        if (order.paymentStatus === 'paid') {
+            throw new common_1.BadRequestException('Đơn hàng đã được xác nhận thanh toán');
+        }
+        return this.prisma.order.update({
+            where: { id: orderId },
+            data: { paymentStatus: 'paid' },
+        });
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([

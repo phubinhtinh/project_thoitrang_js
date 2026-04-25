@@ -1,0 +1,164 @@
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { BANK_CONFIG, buildVietQRUrl } from '../config/bankConfig';
+import { ordersAPI } from '../api/axios';
+
+/**
+ * Modal hiển thị mã QR VietQR sau khi đặt hàng với phương thức `banking`.
+ * @param {{
+ *   open: boolean,
+ *   orderId: number,
+ *   amount: number,
+ *   onClose: () => void,
+ *   onConfirmed?: () => void,  // user xác nhận đã CK
+ * }} props
+ */
+export default function PaymentQRModal({ open, orderId, amount, onClose, onConfirmed }) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+
+  if (!open) return null;
+
+  const handleConfirm = async () => {
+    if (!orderId) return;
+    setConfirming(true);
+    try {
+      await ordersAPI.confirmBanking(orderId);
+      toast.success('Đã xác nhận thanh toán! Cảm ơn bạn.');
+      if (onConfirmed) onConfirmed();
+      else onClose();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Xác nhận thất bại');
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  const addInfo = `THANHTOAN DH${orderId}`;
+  const qrUrl = buildVietQRUrl({ amount, addInfo });
+
+  const formatPrice = (p) =>
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
+
+  const copy = (text, label) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`Đã sao chép ${label}`);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-on-surface/70 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-surface w-full max-w-2xl max-h-[95vh] overflow-y-auto shadow-2xl">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-outline-variant/20 flex items-center justify-between sticky top-0 bg-surface z-10">
+          <div>
+            <p className="font-label text-[10px] uppercase tracking-[0.3em] text-secondary">Đơn hàng #{orderId}</p>
+            <h2 className="font-headline text-2xl text-on-surface mt-1">Quét mã QR để chuyển khoản</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-outline hover:text-on-surface transition-colors"
+            aria-label="Đóng"
+          >
+            <span className="material-symbols-outlined text-3xl">close</span>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+          {/* QR Image */}
+          <div className="flex flex-col items-center">
+            <div className="relative w-full aspect-square bg-surface-container-low border border-outline-variant/30 flex items-center justify-center overflow-hidden">
+              {!imgLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-5xl text-outline-variant animate-pulse">qr_code_2</span>
+                </div>
+              )}
+              <img
+                src={qrUrl}
+                alt="VietQR"
+                onLoad={() => setImgLoaded(true)}
+                className={`w-full h-full object-contain p-4 transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              />
+            </div>
+            <p className="font-label text-[10px] uppercase tracking-[0.25em] text-secondary mt-4 text-center">
+              Mở app ngân hàng &middot; Quét QR &middot; Xác nhận
+            </p>
+          </div>
+
+          {/* Bank Info */}
+          <div className="flex flex-col gap-5">
+            <InfoRow
+              label="Ngân hàng"
+              value={BANK_CONFIG.bankName}
+            />
+            <InfoRow
+              label="Số tài khoản"
+              value={BANK_CONFIG.accountNumber}
+              onCopy={() => copy(BANK_CONFIG.accountNumber, 'số tài khoản')}
+            />
+            <InfoRow
+              label="Chủ tài khoản"
+              value={BANK_CONFIG.accountName}
+            />
+            <InfoRow
+              label="Số tiền"
+              value={formatPrice(amount)}
+              valueClass="text-error font-semibold"
+              onCopy={() => copy(String(amount), 'số tiền')}
+            />
+            <InfoRow
+              label="Nội dung CK"
+              value={addInfo}
+              onCopy={() => copy(addInfo, 'nội dung')}
+              valueClass="text-primary font-semibold"
+            />
+            <p className="font-body text-xs text-secondary leading-relaxed mt-2 p-3 bg-surface-container-low border-l-2 border-primary/40">
+              ⚠ Vui lòng nhập <strong>đúng nội dung CK</strong> để hệ thống xác nhận đơn hàng tự động.
+            </p>
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="px-8 py-6 border-t border-outline-variant/20 flex flex-col sm:flex-row gap-3 sticky bottom-0 bg-surface">
+          <button
+            onClick={() => {
+              toast('Bạn có thể thanh toán sau từ trang Đơn Hàng', { icon: '🕒' });
+              onClose();
+            }}
+            className="flex-1 py-4 font-label uppercase tracking-[0.2em] text-[11px] border border-outline-variant/40 hover:bg-surface-container-low transition-colors"
+          >
+            Để sau
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={confirming}
+            className="flex-1 py-4 font-label uppercase tracking-[0.2em] text-[11px] bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {confirming ? 'Đang xác nhận...' : 'Tôi đã chuyển khoản'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoRow({ label, value, onCopy, valueClass = '' }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="font-label text-[10px] uppercase tracking-[0.25em] text-secondary">{label}</span>
+      <div className="flex items-center justify-between gap-3">
+        <span className={`font-body text-base text-on-surface break-all ${valueClass}`}>{value}</span>
+        {onCopy && (
+          <button
+            onClick={onCopy}
+            type="button"
+            className="text-outline hover:text-primary transition-colors flex-shrink-0"
+            title="Sao chép"
+          >
+            <span className="material-symbols-outlined text-xl">content_copy</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

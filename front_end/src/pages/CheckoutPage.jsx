@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { ordersAPI } from '../api/axios';
 import toast from 'react-hot-toast';
+import PaymentQRModal from '../components/PaymentQRModal';
 
 export default function CheckoutPage() {
   const { cartItems, totalPrice, fetchCart } = useCart();
@@ -14,6 +15,7 @@ export default function CheckoutPage() {
     paymentMethod: 'cod',
   });
   const [loading, setLoading] = useState(false);
+  const [qrModal, setQrModal] = useState({ open: false, orderId: null, amount: 0 });
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -34,12 +36,27 @@ export default function CheckoutPage() {
       const res = await ordersAPI.checkout(form);
       toast.success(res.data.message || '🎉 Đặt hàng thành công!');
       await fetchCart();
-      navigate('/orders');
+
+      // Nếu chọn chuyển khoản → mở modal QR thay vì redirect
+      if (form.paymentMethod === 'banking' && res.data.order) {
+        setQrModal({
+          open: true,
+          orderId: res.data.order.id,
+          amount: Number(res.data.order.totalPrice),
+        });
+      } else {
+        navigate('/orders');
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Đặt hàng thất bại');
     } finally {
       setLoading(false);
     }
+  };
+
+  const closeQrModal = () => {
+    setQrModal({ open: false, orderId: null, amount: 0 });
+    navigate('/orders');
   };
 
   const paymentMethods = [
@@ -49,7 +66,9 @@ export default function CheckoutPage() {
     { value: 'vnpay', label: 'VNPay', icon: 'credit_card' },
   ];
 
-  if (cartItems.length === 0) {
+  // Lưu ý: nếu modal QR đang mở (đặt hàng banking thành công, giỏ vừa được dọn),
+  // KHÔNG show trang "giỏ trống" — phải giữ modal hiển thị cho user quét QR.
+  if (cartItems.length === 0 && !qrModal.open) {
     return (
       <div className="pt-32 pb-24 text-center min-h-screen">
         <span className="material-symbols-outlined text-5xl text-outline-variant mb-4 block">shopping_cart</span>
@@ -58,6 +77,18 @@ export default function CheckoutPage() {
           Tiếp tục mua sắm
         </button>
       </div>
+    );
+  }
+
+  // Khi modal đang mở mà giỏ trống → chỉ render modal, ẩn phần form/aside
+  if (cartItems.length === 0 && qrModal.open) {
+    return (
+      <PaymentQRModal
+        open={qrModal.open}
+        orderId={qrModal.orderId}
+        amount={qrModal.amount}
+        onClose={closeQrModal}
+      />
     );
   }
 
@@ -211,6 +242,13 @@ export default function CheckoutPage() {
           </p>
         </div>
       </aside>
+
+      <PaymentQRModal
+        open={qrModal.open}
+        orderId={qrModal.orderId}
+        amount={qrModal.amount}
+        onClose={closeQrModal}
+      />
     </div>
   );
 }

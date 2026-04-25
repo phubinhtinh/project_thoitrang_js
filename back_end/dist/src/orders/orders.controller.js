@@ -41,6 +41,9 @@ let OrdersController = class OrdersController {
     updatePaymentStatus(id, dto) {
         return this.ordersService.updatePaymentStatus(id, dto);
     }
+    confirmBanking(id, req) {
+        return this.ordersService.confirmBankingPayment(id, req.user.userId);
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -83,6 +86,14 @@ __decorate([
     __metadata("design:paramtypes", [Number, order_dto_1.UpdatePaymentStatusDto]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updatePaymentStatus", null);
+__decorate([
+    (0, common_1.Post)(':id/confirm-banking'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "confirmBanking", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('orders'),
