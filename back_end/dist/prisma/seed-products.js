@@ -10,6 +10,10 @@ const PRODUCTS_BY_CATEGORY = {
             basePrice: 1290000,
             discountPrice: 990000,
             img: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Be': 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=900&q=85&auto=format&fit=crop',
+                'Đen': 'https://images.unsplash.com/photo-1566479179817-c0b5b4b4b1e8?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: 'S', color: 'Be', stockQuantity: 15, sku: 'VAY-ZRA-BE-S' },
                 { size: 'M', color: 'Be', stockQuantity: 20, sku: 'VAY-ZRA-BE-M' },
@@ -46,7 +50,11 @@ const PRODUCTS_BY_CATEGORY = {
             description: 'Đầm dạ hội Mango phom ôm body, chất liệu satin sang trọng.',
             basePrice: 2190000,
             discountPrice: 1890000,
-            img: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=900&q=85&auto=format&fit=crop',
+            img: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Đỏ Rượu': 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=900&q=85&auto=format&fit=crop',
+                'Đen': 'https://images.unsplash.com/photo-1566479179817-c0b5b4b4b1e8?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: 'S', color: 'Đỏ Rượu', stockQuantity: 8, sku: 'DAM-MNG-RD-S' },
                 { size: 'M', color: 'Đỏ Rượu', stockQuantity: 10, sku: 'DAM-MNG-RD-M' },
@@ -84,6 +92,10 @@ const PRODUCTS_BY_CATEGORY = {
             basePrice: 390000,
             discountPrice: 320000,
             img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Trắng': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900&q=85&auto=format&fit=crop',
+                'Đen': 'https://images.unsplash.com/photo-1542060748-10c28b62716f?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: 'M', color: 'Trắng', stockQuantity: 40, sku: 'ATN-UNQ-WH-M' },
                 { size: 'L', color: 'Trắng', stockQuantity: 35, sku: 'ATN-UNQ-WH-L' },
@@ -95,7 +107,11 @@ const PRODUCTS_BY_CATEGORY = {
             description: 'Áo thun Adidas in logo Trefoil cổ điển, chất liệu cotton 100%.',
             basePrice: 650000,
             discountPrice: 550000,
-            img: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=900&q=85&auto=format&fit=crop',
+            img: 'https://images.unsplash.com/photo-1542060748-10c28b62716f?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Đen': 'https://images.unsplash.com/photo-1542060748-10c28b62716f?w=900&q=85&auto=format&fit=crop',
+                'Trắng': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: 'M', color: 'Đen', stockQuantity: 25, sku: 'ATN-ADI-BK-M' },
                 { size: 'L', color: 'Đen', stockQuantity: 30, sku: 'ATN-ADI-BK-L' },
@@ -180,6 +196,10 @@ const PRODUCTS_BY_CATEGORY = {
             basePrice: 1590000,
             discountPrice: 1290000,
             img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Đen': 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=900&q=85&auto=format&fit=crop',
+                'Be': 'https://images.unsplash.com/photo-1590739225497-56c1ef5e1f00?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: 'Free Size', color: 'Đen', stockQuantity: 20, sku: 'TX-CK-BK-FR' },
                 { size: 'Free Size', color: 'Be', stockQuantity: 15, sku: 'TX-CK-BE-FR' },
@@ -190,7 +210,11 @@ const PRODUCTS_BY_CATEGORY = {
             description: 'Túi xách Michael Kors Jet Set, logo MK nổi bật, da saffiano sang trọng.',
             basePrice: 4950000,
             discountPrice: 4290000,
-            img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&q=85&auto=format&fit=crop',
+            img: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Nâu': 'https://images.unsplash.com/photo-1591561954557-26941169b49e?w=900&q=85&auto=format&fit=crop',
+                'Đen': 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: 'Free Size', color: 'Nâu', stockQuantity: 8, sku: 'TX-MK-BR-FR' },
                 { size: 'Free Size', color: 'Đen', stockQuantity: 10, sku: 'TX-MK-BK-FR' },
@@ -212,6 +236,10 @@ const PRODUCTS_BY_CATEGORY = {
             basePrice: 1890000,
             discountPrice: 1590000,
             img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Đen': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=900&q=85&auto=format&fit=crop',
+                'Be': 'https://images.unsplash.com/photo-1548863227-3af567fc3b27?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: 'Free Size', color: 'Đen', stockQuantity: 18, sku: 'TX-MLB-BK-FR' },
                 { size: 'Free Size', color: 'Be', stockQuantity: 14, sku: 'TX-MLB-BE-FR' },
@@ -225,6 +253,10 @@ const PRODUCTS_BY_CATEGORY = {
             basePrice: 4890000,
             discountPrice: 3990000,
             img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Đen': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85&auto=format&fit=crop',
+                'Trắng': 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: '40', color: 'Đen', stockQuantity: 12, sku: 'GIAY-ADI-UB-BK-40' },
                 { size: '41', color: 'Đen', stockQuantity: 15, sku: 'GIAY-ADI-UB-BK-41' },
@@ -251,6 +283,10 @@ const PRODUCTS_BY_CATEGORY = {
             basePrice: 1890000,
             discountPrice: null,
             img: 'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=900&q=85&auto=format&fit=crop',
+            colorImages: {
+                'Đen': 'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=900&q=85&auto=format&fit=crop',
+                'Trắng': 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=900&q=85&auto=format&fit=crop',
+            },
             variants: [
                 { size: '38', color: 'Đen', stockQuantity: 15, sku: 'GIAY-CVS-CT-BK-38' },
                 { size: '39', color: 'Đen', stockQuantity: 20, sku: 'GIAY-CVS-CT-BK-39' },
@@ -283,8 +319,57 @@ const PRODUCTS_BY_CATEGORY = {
         },
     ],
 };
+const CATEGORY_TREE = [
+    {
+        name: 'Thời Trang Nữ',
+        description: 'Thời trang nữ cao cấp',
+        children: [
+            { name: 'Váy', description: 'Váy Đẹp Tôn Vóc Dáng Thiếu Nữ' },
+            { name: 'Đầm', description: 'Đầm Đẹp Tôn Vóc Dáng Thiếu Nữ' },
+        ],
+    },
+    {
+        name: 'Thời Trang Nam',
+        description: 'Chuyên các loại quần áo nam',
+        children: [
+            { name: 'Áo Thun', description: 'Áo Thun Đẹp' },
+            { name: 'Quần Jean', description: 'Quần Jean Thiết Kế Đẹp' },
+        ],
+    },
+    {
+        name: 'Phụ kiện',
+        description: 'Phụ kiện thời trang tinh tế',
+        children: [
+            { name: 'Túi Xách', description: 'Túi Xách Đẹp' },
+            { name: 'Giày', description: 'Giày Đẹp' },
+        ],
+    },
+];
+async function ensureCategories() {
+    for (const parent of CATEGORY_TREE) {
+        let parentRow = await prisma.category.findFirst({ where: { name: parent.name } });
+        if (!parentRow) {
+            parentRow = await prisma.category.create({
+                data: { name: parent.name, description: parent.description },
+            });
+            console.log(`  + Tạo danh mục cha "${parent.name}"`);
+        }
+        for (const child of parent.children) {
+            const existing = await prisma.category.findFirst({ where: { name: child.name } });
+            if (!existing) {
+                await prisma.category.create({
+                    data: { name: child.name, description: child.description, parentId: parentRow.id },
+                });
+                console.log(`  + Tạo danh mục con "${child.name}" (cha=${parent.name})`);
+            }
+        }
+    }
+}
 async function main() {
     console.log('🌱 Bắt đầu seed sản phẩm theo danh mục...\n');
+    console.log('🗂️  Kiểm tra / tạo cây danh mục...');
+    await ensureCategories();
+    console.log('');
     const categories = await prisma.category.findMany();
     const catMap = new Map();
     for (const c of categories)
@@ -301,7 +386,7 @@ async function main() {
         }
         console.log(`📦 Danh mục "${catName}" (id=${categoryId})`);
         for (const p of products) {
-            const { variants, ...productInfo } = p;
+            const { variants, colorImages, ...productInfo } = p;
             const existing = await prisma.product.findFirst({
                 where: { name: productInfo.name, categoryId },
             });
@@ -314,10 +399,12 @@ async function main() {
                     data: { ...productInfo, categoryId },
                 });
             for (const v of variants) {
+                const variantImg = colorImages?.[v.color] ?? p.img;
+                const data = { ...v, img: variantImg, productId: product.id };
                 await prisma.productVariant.upsert({
                     where: { sku: v.sku },
-                    update: { ...v, productId: product.id },
-                    create: { ...v, productId: product.id },
+                    update: data,
+                    create: data,
                 });
                 totalVariants++;
             }

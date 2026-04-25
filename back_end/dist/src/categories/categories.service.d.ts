@@ -7,71 +7,71 @@ export declare class CategoriesService {
         children: ({
             children: {
                 id: number;
-                createdAt: Date;
                 name: string;
                 description: string | null;
                 parentId: number | null;
+                createdAt: Date;
             }[];
         } & {
             id: number;
-            createdAt: Date;
             name: string;
             description: string | null;
             parentId: number | null;
+            createdAt: Date;
         })[];
     } & {
         id: number;
-        createdAt: Date;
         name: string;
         description: string | null;
         parentId: number | null;
+        createdAt: Date;
     })[]>;
     findOne(id: number): Promise<{
         children: {
             id: number;
-            createdAt: Date;
             name: string;
             description: string | null;
             parentId: number | null;
+            createdAt: Date;
         }[];
         products: {
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
             description: string | null;
-            categoryId: number;
+            createdAt: Date;
             basePrice: import("@prisma/client/runtime/library").Decimal;
             discountPrice: import("@prisma/client/runtime/library").Decimal | null;
             img: string | null;
+            categoryId: number;
+            updatedAt: Date;
         }[];
     } & {
         id: number;
-        createdAt: Date;
         name: string;
         description: string | null;
         parentId: number | null;
+        createdAt: Date;
     }>;
     create(dto: CreateCategoryDto): Promise<{
         id: number;
-        createdAt: Date;
         name: string;
         description: string | null;
         parentId: number | null;
+        createdAt: Date;
     }>;
     update(id: number, dto: UpdateCategoryDto): Promise<{
         id: number;
-        createdAt: Date;
         name: string;
         description: string | null;
         parentId: number | null;
+        createdAt: Date;
     }>;
     remove(id: number): Promise<{
         id: number;
-        createdAt: Date;
         name: string;
         description: string | null;
         parentId: number | null;
+        createdAt: Date;
     }>;
     getAllChildIds(parentId: number): Promise<number[]>;
 }

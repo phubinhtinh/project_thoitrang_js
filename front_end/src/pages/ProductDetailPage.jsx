@@ -34,6 +34,20 @@ export default function ProductDetailPage() {
   const sizes = [...new Set(product?.variants?.map(v => v.size) || [])];
   const colors = [...new Set(product?.variants?.map(v => v.color) || [])];
 
+  // Auto-select màu đầu tiên khi load product
+  useEffect(() => {
+    if (product && colors.length > 0 && !selectedColor) {
+      setSelectedColor(colors[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product]);
+
+  // Ảnh hiển thị: ưu tiên ảnh của variant đang chọn, rồi tới ảnh của 1 variant cùng màu, cuối cùng là ảnh product
+  const displayedImage =
+    selectedVariant?.img
+    || product?.variants?.find(v => v.color === selectedColor)?.img
+    || product?.img;
+
   // Find matching variant
   useEffect(() => {
     if (product?.variants && selectedSize && selectedColor) {
@@ -112,12 +126,13 @@ export default function ProductDetailPage() {
       <section className="max-w-[1920px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-start">
         {/* Left: Images */}
         <div className="lg:col-span-7 flex flex-col gap-8">
-          <div className="bg-surface-variant aspect-[3/4] overflow-hidden group">
-            {product.img ? (
+          <div className="bg-surface-variant aspect-[3/4] overflow-hidden group relative">
+            {displayedImage ? (
               <img
+                key={displayedImage}
                 alt={product.name}
-                src={product.img}
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                src={displayedImage}
+                className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 animate-fade-in"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -125,6 +140,29 @@ export default function ProductDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Color thumbnails */}
+          {colors.length > 1 && (
+            <div className="flex gap-3 flex-wrap">
+              {colors.map(c => {
+                const variantWithImg = product.variants.find(v => v.color === c && v.img);
+                const thumb = variantWithImg?.img || product.img;
+                if (!thumb) return null;
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setSelectedColor(c)}
+                    className={`w-20 h-24 overflow-hidden border-2 transition-all ${
+                      selectedColor === c ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                    title={c}
+                  >
+                    <img src={thumb} alt={c} className="w-full h-full object-cover" />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Right: Product Info */}

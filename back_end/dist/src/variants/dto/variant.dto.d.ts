@@ -3,10 +3,12 @@ export declare class CreateVariantDto {
     color: string;
     stockQuantity: number;
     sku: string;
+    img?: string;
 }
 export declare class UpdateVariantDto {
     size?: string;
     color?: string;
     stockQuantity?: number;
     sku?: string;
+    img?: string;
 }

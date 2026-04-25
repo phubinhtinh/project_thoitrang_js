@@ -16,6 +16,7 @@ export declare class CartService {
                 };
             } & {
                 id: number;
+                img: string | null;
                 sku: string;
                 productId: number;
                 size: string;

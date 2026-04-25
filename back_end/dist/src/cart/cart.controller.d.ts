@@ -16,6 +16,7 @@ export declare class CartController {
                 };
             } & {
                 id: number;
+                img: string | null;
                 sku: string;
                 productId: number;
                 size: string;

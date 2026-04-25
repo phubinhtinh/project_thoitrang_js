@@ -276,7 +276,7 @@ export default function HomePage() {
                 <img
                   alt="Artisan at work"
                   className="w-full h-full object-cover"
-                  src="https://images.unsplash.com/photo-1558171813-01ed3d751c0e?w=800&q=80&auto=format&fit=crop"
+                  src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80&auto=format&fit=crop"
                 />
               </div>
               <div className="absolute -bottom-12 -left-4 md:-left-12 w-2/3 aspect-square bg-surface overflow-hidden editorial-shadow">

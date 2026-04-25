@@ -33,6 +33,7 @@ export declare class OrdersService {
                 };
             } & {
                 id: number;
+                img: string | null;
                 sku: string;
                 productId: number;
                 size: string;
@@ -73,6 +74,7 @@ export declare class OrdersService {
                 };
             } & {
                 id: number;
+                img: string | null;
                 sku: string;
                 productId: number;
                 size: string;

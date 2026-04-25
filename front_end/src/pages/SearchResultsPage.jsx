@@ -31,10 +31,26 @@ export default function SearchResultsPage() {
     <div className="pt-40 md:pt-48 pb-24">
       <section className="px-6 md:px-12 max-w-screen-2xl mx-auto mb-20">
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+          <h1 className="font-headline text-4xl md:text-5xl text-on-surface mb-10">Tìm kiếm</h1>
           <form onSubmit={handleSearch} className="w-full relative group">
-            <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tìm kiếm sản phẩm..."
-              className="w-full bg-transparent border-none focus:ring-0 text-center font-headline italic text-3xl md:text-5xl text-on-surface placeholder-outline-variant pb-6 outline-none border-b border-outline-variant/30"/>
-            {query && <button type="button" onClick={() => { setQuery(''); setSearchParams({}); setProducts([]); }} className="absolute right-0 top-1/2 -translate-y-1/2 -mt-3 text-outline hover:text-on-surface transition-colors"><span className="material-symbols-outlined text-2xl">close</span></button>}
+            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-outline pointer-events-none">search</span>
+            <input
+              autoFocus
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Nhập tên sản phẩm, thương hiệu..."
+              className="w-full bg-surface border border-outline-variant/40 focus:border-primary text-on-surface placeholder:text-outline pl-14 pr-14 py-5 text-lg font-body outline-none transition-colors rounded-sm"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => { setQuery(''); setSearchParams({}); setProducts([]); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            )}
           </form>
           {searchQuery && <p className="mt-6 font-label text-[11px] uppercase tracking-[0.2em] text-secondary">{loading ? 'Đang tìm...' : `${pagination.total || 0} kết quả cho '${searchQuery}'`}</p>}
         </div>

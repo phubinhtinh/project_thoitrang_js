@@ -5,6 +5,7 @@ export declare class VariantsController {
     constructor(variantsService: VariantsService);
     findByProduct(productId: number): Promise<{
         id: number;
+        img: string | null;
         sku: string;
         productId: number;
         size: string;
@@ -13,6 +14,7 @@ export declare class VariantsController {
     }[]>;
     create(productId: number, dto: CreateVariantDto): Promise<{
         id: number;
+        img: string | null;
         sku: string;
         productId: number;
         size: string;
@@ -21,6 +23,7 @@ export declare class VariantsController {
     }>;
     update(id: number, dto: UpdateVariantDto): Promise<{
         id: number;
+        img: string | null;
         sku: string;
         productId: number;
         size: string;
@@ -29,6 +32,7 @@ export declare class VariantsController {
     }>;
     remove(id: number): Promise<{
         id: number;
+        img: string | null;
         sku: string;
         productId: number;
         size: string;

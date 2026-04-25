@@ -17,6 +17,10 @@ export class CreateVariantDto {
   @IsString()
   @IsNotEmpty()
   sku: string;
+
+  @IsString()
+  @IsOptional()
+  img?: string;
 }
 
 export class UpdateVariantDto {
@@ -36,4 +40,8 @@ export class UpdateVariantDto {
   @IsString()
   @IsOptional()
   sku?: string;
+
+  @IsString()
+  @IsOptional()
+  img?: string;
 }

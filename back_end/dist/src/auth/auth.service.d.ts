@@ -26,11 +26,11 @@ export declare class AuthService {
     }>;
     getProfile(userId: number): Promise<{
         id: number;
+        createdAt: Date;
         email: string;
         fullName: string;
         phone: string | null;
         address: string | null;
         role: import(".prisma/client").$Enums.Role;
-        createdAt: Date;
     } | null>;
 }
