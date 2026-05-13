@@ -4,15 +4,28 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger('HttpExceptionFilter');
+
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+
+    // Log đầy đủ để debug (chỉ hiện ở console server, không gửi cho client)
+    if (!(exception instanceof HttpException)) {
+      this.logger.error(
+        `Unhandled exception on ${(request as any).method} ${(request as any).url}: ${exception?.message || exception}`,
+        exception?.stack,
+      );
+      if (exception?.code) this.logger.error(`Prisma code: ${exception.code}`);
+      if (exception?.meta) this.logger.error(`Prisma meta: ${JSON.stringify(exception.meta)}`);
+    }
 
     let status =
       exception instanceof HttpException
