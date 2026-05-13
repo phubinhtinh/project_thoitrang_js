@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsInt } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateVariantDto {
@@ -6,21 +6,14 @@ export class CreateVariantDto {
   @IsNotEmpty()
   size: string;
 
-  @IsString()
-  @IsNotEmpty()
-  color: string;
-
   @IsInt()
+  @Min(0)
   @Type(() => Number)
   stockQuantity: number;
 
   @IsString()
   @IsNotEmpty()
   sku: string;
-
-  @IsString()
-  @IsOptional()
-  img?: string;
 }
 
 export class UpdateVariantDto {
@@ -28,20 +21,13 @@ export class UpdateVariantDto {
   @IsOptional()
   size?: string;
 
-  @IsString()
-  @IsOptional()
-  color?: string;
-
   @IsInt()
   @IsOptional()
+  @Min(0)
   @Type(() => Number)
   stockQuantity?: number;
 
   @IsString()
   @IsOptional()
   sku?: string;
-
-  @IsString()
-  @IsOptional()
-  img?: string;
 }

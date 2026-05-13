@@ -34,7 +34,7 @@ export class ProductsService {
         take: limit,
         include: {
           category: { select: { id: true, name: true } },
-          variants: true,
+          colors: { include: { variants: true }, orderBy: { id: 'asc' } },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -57,7 +57,7 @@ export class ProductsService {
       where: { id },
       include: {
         category: { select: { id: true, name: true } },
-        variants: true,
+        colors: { include: { variants: true }, orderBy: { id: 'asc' } },
         reviews: {
           include: {
             user: { select: { id: true, fullName: true } },
@@ -76,7 +76,7 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto) {
-    // Tạo product + variants trong cùng 1 giao dịch
+    // Tạo product + colors + variants trong cùng 1 giao dịch (nested write)
     return this.prisma.product.create({
       data: {
         categoryId: dto.categoryId,
@@ -84,17 +84,24 @@ export class ProductsService {
         description: dto.description,
         basePrice: dto.basePrice,
         discountPrice: dto.discountPrice,
-        variants: {
-          create: dto.variants.map((v) => ({
-            size: v.size,
-            color: v.color,
-            stockQuantity: v.stockQuantity,
-            sku: v.sku,
-            img: v.img,
+        colors: {
+          create: dto.colors.map((c) => ({
+            color: c.color,
+            img: c.img,
+            variants: {
+              create: c.variants.map((v) => ({
+                size: v.size,
+                stockQuantity: v.stockQuantity,
+                sku: v.sku,
+              })),
+            },
           })),
         },
       },
-      include: { variants: true, category: { select: { id: true, name: true } } },
+      include: {
+        category: { select: { id: true, name: true } },
+        colors: { include: { variants: true }, orderBy: { id: 'asc' } },
+      },
     });
   }
 

@@ -420,9 +420,8 @@ async function main() {
     console.log(`📦 Danh mục "${catName}" (id=${categoryId})`);
 
     for (const p of products) {
-      // `img` cũ là ảnh bìa sản phẩm — không còn lưu trong bảng Product nữa,
-      // chỉ dùng làm fallback cho ảnh biến thể bên dưới.
-      const { variants, colorImages, img: _img, ...productInfo } = p;
+      // `img` cũ là ảnh bìa sản phẩm — dùng làm fallback cho ảnh màu bên dưới.
+      const { variants, colorImages, img: defaultImg, ...productInfo } = p;
 
       // Upsert theo tên+categoryId để tránh trùng khi chạy lại
       const existing = await prisma.product.findFirst({
@@ -438,20 +437,55 @@ async function main() {
             data: { ...productInfo, categoryId },
           });
 
+      // Gom flat variants theo màu → tạo ProductColor + ProductVariant
+      const colorMap = new Map<string, Variant[]>();
       for (const v of variants) {
+        if (!colorMap.has(v.color)) colorMap.set(v.color, []);
+        colorMap.get(v.color)!.push(v);
+      }
+
+      for (const [color, colorVariants] of colorMap) {
         // Ảnh riêng theo màu (nếu có khai báo), fallback về ảnh bìa sản phẩm
-        const variantImg = colorImages?.[v.color] ?? p.img;
-        const data = { ...v, img: variantImg, productId: product.id };
-        await prisma.productVariant.upsert({
-          where: { sku: v.sku },
-          update: data,
-          create: data,
+        const colorImg = colorImages?.[color] ?? defaultImg;
+
+        // Upsert ProductColor theo (productId, color) unique
+        let productColor = await prisma.productColor.findFirst({
+          where: { productId: product.id, color },
         });
-        totalVariants++;
+
+        if (productColor) {
+          await prisma.productColor.update({
+            where: { id: productColor.id },
+            data: { img: colorImg },
+          });
+        } else {
+          productColor = await prisma.productColor.create({
+            data: { productId: product.id, color, img: colorImg },
+          });
+        }
+
+        // Upsert từng variant (size) cho màu này
+        for (const v of colorVariants) {
+          await prisma.productVariant.upsert({
+            where: { sku: v.sku },
+            update: {
+              size: v.size,
+              stockQuantity: v.stockQuantity,
+              colorId: productColor.id,
+            },
+            create: {
+              colorId: productColor.id,
+              size: v.size,
+              stockQuantity: v.stockQuantity,
+              sku: v.sku,
+            },
+          });
+          totalVariants++;
+        }
       }
 
       totalProducts++;
-      console.log(`   ✓ ${product.name} (${variants.length} biến thể)`);
+      console.log(`   ✓ ${product.name} (${variants.length} biến thể, ${colorMap.size} màu)`);
     }
     console.log('');
   }

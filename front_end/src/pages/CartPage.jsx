@@ -64,15 +64,15 @@ export default function CartPage() {
           {/* Items */}
           <div className="lg:col-span-8 space-y-8">
             {cartItems.map((item) => {
-              const product = item.variant?.product;
+              const product = item.variant?.productColor?.product;
               const price = product?.discountPrice || product?.basePrice || 0;
               return (
                 <div key={item.id} className="flex flex-col md:flex-row gap-6 bg-surface-container-low p-6 md:p-8 group">
                   <div className="w-full md:w-48 h-60 bg-surface-variant overflow-hidden flex-shrink-0">
-                    {item.variant?.img ? (
+                    {item.variant?.productColor?.img ? (
                       <img
                         alt={product.name}
-                        src={item.variant.img}
+                        src={item.variant.productColor.img}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
@@ -93,7 +93,7 @@ export default function CartPage() {
                       </div>
                       <div className="flex gap-6 text-[11px] uppercase tracking-widest text-secondary font-medium">
                         <div>Size: {item.variant?.size}</div>
-                        <div>Màu: {item.variant?.color}</div>
+                        <div>Màu: {item.variant?.productColor?.color}</div>
                       </div>
                     </div>
                     <div className="flex justify-between items-end mt-6">

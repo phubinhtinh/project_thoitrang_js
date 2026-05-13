@@ -88,17 +88,17 @@ export default function OrdersPage() {
                 {order.items?.map(item => (
                   <div key={item.id} className="flex gap-4 items-center">
                     <div className="w-16 h-20 bg-surface-variant flex-shrink-0 overflow-hidden">
-                      {item.variant?.img ? (
-                        <img src={item.variant.img} alt={item.variant.product?.name} className="w-full h-full object-cover"/>
+                      {item.variant?.productColor?.img ? (
+                        <img src={item.variant.productColor.img} alt={item.variant.productColor?.product?.name} className="w-full h-full object-cover"/>
                       ) : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline-variant text-sm">image</span></div>}
                     </div>
                     <div className="flex-1">
-                      <Link to={`/products/${item.variant?.product?.id}`} className="font-body text-sm font-medium hover:opacity-70 transition-opacity">{item.variant?.product?.name}</Link>
-                      <p className="font-label text-xs text-secondary">{item.variant?.size} / {item.variant?.color} × {item.quantity}</p>
+                      <Link to={`/products/${item.variant?.productColor?.product?.id}`} className="font-body text-sm font-medium hover:opacity-70 transition-opacity">{item.variant?.productColor?.product?.name}</Link>
+                      <p className="font-label text-xs text-secondary">{item.variant?.size} / {item.variant?.productColor?.color} × {item.quantity}</p>
                     </div>
                     <span className="font-body text-sm">{fmt(item.price)}</span>
                     {order.status === 'delivered' && (
-                      <button onClick={() => setReviewModal(item.variant?.product?.id)} className="text-[10px] uppercase tracking-widest text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors">
+                      <button onClick={() => setReviewModal(item.variant?.productColor?.product?.id)} className="text-[10px] uppercase tracking-widest text-primary border-b border-primary/30 pb-0.5 hover:border-primary transition-colors">
                         Đánh giá
                       </button>
                     )}
