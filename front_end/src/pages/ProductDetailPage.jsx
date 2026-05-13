@@ -30,47 +30,37 @@ export default function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Danh sách màu lấy từ product.colors[]
-  const colors = product?.colors?.map(c => c.color) || [];
-
-  // Object màu đang chọn (chứa img + variants[])
-  const selectedColorObj = product?.colors?.find(c => c.color === selectedColor) || null;
-
-  // Danh sách sizes chỉ của màu đang chọn
-  const sizes = selectedColorObj?.variants?.map(v => v.size) || [];
+  // Get unique sizes and colors
+  const sizes = [...new Set(product?.variants?.map(v => v.size) || [])];
+  const colors = [...new Set(product?.variants?.map(v => v.color) || [])];
 
   // Auto-select màu đầu tiên khi load product
   useEffect(() => {
     if (product && colors.length > 0 && !selectedColor) {
       setSelectedColor(colors[0]);
     }
+    // Nếu chỉ có 1 size duy nhất → tự chọn luôn
+    if (product && sizes.length === 1 && !selectedSize) {
+      setSelectedSize(sizes[0]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
-  // Khi đổi màu: reset size nếu size cũ không có ở màu mới, hoặc tự chọn nếu chỉ 1 size
-  useEffect(() => {
-    if (!selectedColorObj) return;
-    const availableSizes = selectedColorObj.variants?.map(v => v.size) || [];
-    if (availableSizes.length === 1) {
-      setSelectedSize(availableSizes[0]);
-    } else if (selectedSize && !availableSizes.includes(selectedSize)) {
-      setSelectedSize('');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedColor, selectedColorObj]);
-
-  // Ảnh hiển thị: lấy từ màu đang chọn, fallback màu đầu tiên
-  const displayedImage = selectedColorObj?.img || product?.colors?.[0]?.img;
+  // Ảnh hiển thị: ưu tiên ảnh của variant đang chọn, rồi tới ảnh của 1 variant cùng màu, cuối cùng là ảnh variant đầu tiên
+  const displayedImage =
+    selectedVariant?.img
+    || product?.variants?.find(v => v.color === selectedColor)?.img
+    || product?.variants?.[0]?.img;
 
   // Find matching variant
   useEffect(() => {
-    if (selectedColorObj?.variants && selectedSize) {
-      const variant = selectedColorObj.variants.find(v => v.size === selectedSize);
+    if (product?.variants && selectedSize && selectedColor) {
+      const variant = product.variants.find(v => v.size === selectedSize && v.color === selectedColor);
       setSelectedVariant(variant || null);
     } else {
       setSelectedVariant(null);
     }
-  }, [selectedSize, selectedColorObj]);
+  }, [selectedSize, selectedColor, product]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -81,8 +71,8 @@ export default function ProductDetailPage() {
       toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
       return;
     }
-    const totalVariants = product?.colors?.flatMap(c => c.variants || []).length || 0;
-    if (totalVariants === 0) {
+    const hasVariants = (product?.variants?.length || 0) > 0;
+    if (!hasVariants) {
       toast.error('Sản phẩm này tạm chưa có biến thể để bán');
       return;
     }
@@ -167,21 +157,23 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* Color thumbnails — mỗi màu có 1 ảnh riêng */}
+          {/* Color thumbnails */}
           {colors.length > 1 && (
             <div className="flex gap-3 flex-wrap">
-              {product.colors.map(c => {
-                if (!c.img) return null;
+              {colors.map(c => {
+                const variantWithImg = product.variants.find(v => v.color === c && v.img);
+                const thumb = variantWithImg?.img || product.variants?.[0]?.img;
+                if (!thumb) return null;
                 return (
                   <button
-                    key={c.id}
-                    onClick={() => setSelectedColor(c.color)}
+                    key={c}
+                    onClick={() => setSelectedColor(c)}
                     className={`w-20 h-24 overflow-hidden border-2 transition-all ${
-                      selectedColor === c.color ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
+                      selectedColor === c ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
-                    title={c.color}
+                    title={c}
                   >
-                    <img src={c.img} alt={c.color} className="w-full h-full object-cover" />
+                    <img src={thumb} alt={c} className="w-full h-full object-cover" />
                   </button>
                 );
               })}
@@ -245,13 +237,15 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          {/* Size Selection — chỉ hiện sizes của màu đang chọn */}
+          {/* Size Selection */}
           {sizes.length > 0 && (
             <div className="space-y-4">
               <label className="font-body text-xs uppercase tracking-widest text-on-surface">Chọn Size</label>
               <div className="flex flex-wrap gap-3">
                 {sizes.map(size => {
-                  const variantForSize = selectedColorObj?.variants?.find(v => v.size === size);
+                  const variantForSize = product.variants.find(
+                    v => v.size === size && (selectedColor ? v.color === selectedColor : true)
+                  );
                   const outOfStock = variantForSize?.stockQuantity === 0;
                   return (
                     <button

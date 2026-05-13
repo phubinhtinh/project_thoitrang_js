@@ -6,7 +6,6 @@ import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { VariantsModule } from './variants/variants.module';
-import { ColorsModule } from './colors/colors.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -27,7 +26,6 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     CategoriesModule,
     ProductsModule,
     VariantsModule,
-    ColorsModule,
     CartModule,
     OrdersModule,
     ReviewsModule,

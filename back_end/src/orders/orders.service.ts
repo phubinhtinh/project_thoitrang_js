@@ -13,11 +13,7 @@ export class OrdersService {
       include: {
         variant: {
           include: {
-            productColor: {
-              include: {
-                product: { select: { basePrice: true, discountPrice: true } },
-              },
-            },
+            product: { select: { basePrice: true, discountPrice: true } },
           },
         },
       },
@@ -31,15 +27,14 @@ export class OrdersService {
     for (const item of cartItems) {
       if (item.variant.stockQuantity < item.quantity) {
         throw new BadRequestException(
-          `Sản phẩm "${item.variant.sku}" (${item.variant.productColor.color} - ${item.variant.size}) chỉ còn ${item.variant.stockQuantity} sản phẩm trong kho`,
+          `Sản phẩm "${item.variant.sku}" (${item.variant.color} - ${item.variant.size}) chỉ còn ${item.variant.stockQuantity} sản phẩm trong kho`,
         );
       }
     }
 
     // Tính tổng tiền
     const totalPrice = cartItems.reduce((sum, item) => {
-      const product = item.variant.productColor.product;
-      const price = Number(product.discountPrice || product.basePrice);
+      const price = Number(item.variant.product.discountPrice || item.variant.product.basePrice);
       return sum + price * item.quantity;
     }, 0);
 
@@ -60,8 +55,7 @@ export class OrdersService {
 
       // 2. Chép chi tiết đơn hàng (khóa giá tại thời điểm mua)
       for (const item of cartItems) {
-        const product = item.variant.productColor.product;
-        const price = Number(product.discountPrice || product.basePrice);
+        const price = Number(item.variant.product.discountPrice || item.variant.product.basePrice);
         await tx.orderItem.create({
           data: {
             orderId: newOrder.id,
@@ -100,11 +94,7 @@ export class OrdersService {
           include: {
             variant: {
               include: {
-                productColor: {
-                  include: {
-                    product: { select: { id: true, name: true } },
-                  },
-                },
+                product: { select: { id: true, name: true } },
               },
             },
           },
@@ -123,11 +113,7 @@ export class OrdersService {
           include: {
             variant: {
               include: {
-                productColor: {
-                  include: {
-                    product: { select: { id: true, name: true } },
-                  },
-                },
+                product: { select: { id: true, name: true } },
               },
             },
           },

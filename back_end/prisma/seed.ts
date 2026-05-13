@@ -51,8 +51,7 @@ async function main() {
     },
   });
 
-  // 3. Tạo sản phẩm mẫu — cấu trúc Product → ProductColor → ProductVariant
-  // Mỗi màu (color) có 1 ảnh đại diện, bên trong có nhiều sizes
+  // 3. Tạo sản phẩm mẫu (Products)
   const productsData = [
     {
       id: 1,
@@ -61,16 +60,10 @@ async function main() {
       description: 'Áo khoác dạ dáng dài thiết kế cao cấp, chất liệu len cừu tự nhiên.',
       basePrice: 2450000,
       discountPrice: 2100000,
-      colors: [
-        {
-          color: 'Charcoal',
-          img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD34Hoot6kuc2n5W4toHcu26APTR-6GpiyGeJy-HukfuwwceQnOWFWTlwZHkBm5RtSAoNX_DeWCvAE-7CEOFFDOUIPvdK_VH9FPhu1pIR6tDkpZQzl49Nubju4reXIDDKH_IceN_ckMbCRbHYDBsj-Vb-fLLGnZ4toaV8a3t89et2TUSlguOiCXnCfvCTlO4ILobNT0uC7D3l-vCVHXNRFZHsG6YxJveQa1jD3TbaTCmg3P8u-gzmC2P3ZrAzpk3CXjUpAvy5-kcdWn',
-          variants: [
-            { size: 'S', stockQuantity: 10, sku: 'ATC-CHR-S' },
-            { size: 'M', stockQuantity: 15, sku: 'ATC-CHR-M' },
-            { size: 'L', stockQuantity: 5, sku: 'ATC-CHR-L' },
-          ],
-        },
+      variants: [
+        { size: 'S', color: 'Charcoal', stockQuantity: 10, sku: 'ATC-CHR-S', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD34Hoot6kuc2n5W4toHcu26APTR-6GpiyGeJy-HukfuwwceQnOWFWTlwZHkBm5RtSAoNX_DeWCvAE-7CEOFFDOUIPvdK_VH9FPhu1pIR6tDkpZQzl49Nubju4reXIDDKH_IceN_ckMbCRbHYDBsj-Vb-fLLGnZ4toaV8a3t89et2TUSlguOiCXnCfvCTlO4ILobNT0uC7D3l-vCVHXNRFZHsG6YxJveQa1jD3TbaTCmg3P8u-gzmC2P3ZrAzpk3CXjUpAvy5-kcdWn' },
+        { size: 'M', color: 'Charcoal', stockQuantity: 15, sku: 'ATC-CHR-M' },
+        { size: 'L', color: 'Charcoal', stockQuantity: 5, sku: 'ATC-CHR-L' },
       ],
     },
     {
@@ -80,14 +73,8 @@ async function main() {
       description: 'Túi tote da thật với thiết kế hình học tối giản.',
       basePrice: 1650000,
       discountPrice: null,
-      colors: [
-        {
-          color: 'Black',
-          img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBoOdd9lrBKdkmd58gglt6yZsU-OPm97koV54SCdrVFoF90bfCeP5pnq1-sjsYITO_EXrVnoLn6UO38-MUmNabh-8mVus2t1_yARkKcuPCZxYBe8ep1HSKS8OQZ7zWRQR18x683O36H6z04jM2d_JdJJ6M655Jy5mrXPVPnEQ1bIodtY9QeRw6pDLrS5oH_I_Bp4y3KlGFGJ9GabR79XRLDZH5RrUrO3cI0IJlQR6YuqHEkwOzdcX3xsN-kgV_M1-TQAMM7npew-KR5',
-          variants: [
-            { size: 'One Size', stockQuantity: 20, sku: 'ST-BLK-OS' },
-          ],
-        },
+      variants: [
+        { size: 'One Size', color: 'Black', stockQuantity: 20, sku: 'ST-BLK-OS', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBoOdd9lrBKdkmd58gglt6yZsU-OPm97koV54SCdrVFoF90bfCeP5pnq1-sjsYITO_EXrVnoLn6UO38-MUmNabh-8mVus2t1_yARkKcuPCZxYBe8ep1HSKS8OQZ7zWRQR18x683O36H6z04jM2d_JdJJ6M655Jy5mrXPVPnEQ1bIodtY9QeRw6pDLrS5oH_I_Bp4y3KlGFGJ9GabR79XRLDZH5RrUrO3cI0IJlQR6YuqHEkwOzdcX3xsN-kgV_M1-TQAMM7npew-KR5' },
       ],
     },
     {
@@ -97,15 +84,9 @@ async function main() {
       description: 'Quần tây lụa mềm mại với thiết kế túi hộp hiện đại.',
       basePrice: 1150000,
       discountPrice: 950000,
-      colors: [
-        {
-          color: 'Cream',
-          img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD8mGMW7xv8rGWFos20ni2ifOySnivoK-w02U-jYkwiXKgzLylzQaLbz0qfSoStaTcPwWkx6vuI7Eb64CQD8Y_P6slxwxjU2LAMODkAP9gT8tfNXzueOzpdEOhlURsowfP9lqz8U_N6fE9pq_nfaKQMhjjQNhkDLm-sgJDkKL-E3jcSPsc7yrT8FU75f3ANJxqIZL6in17QGen9ca5kQTgjxDIdKB0Ixn4_rOWhlBmcnyoIuHfOX21UMT4lXFGBkDIIVVxEMFwDkP16',
-          variants: [
-            { size: 'S', stockQuantity: 12, sku: 'SUT-CRM-S' },
-            { size: 'M', stockQuantity: 10, sku: 'SUT-CRM-M' },
-          ],
-        },
+      variants: [
+        { size: 'S', color: 'Cream', stockQuantity: 12, sku: 'SUT-CRM-S', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD8mGMW7xv8rGWFos20ni2ifOySnivoK-w02U-jYkwiXKgzLylzQaLbz0qfSoStaTcPwWkx6vuI7Eb64CQD8Y_P6slxwxjU2LAMODkAP9gT8tfNXzueOzpdEOhlURsowfP9lqz8U_N6fE9pq_nfaKQMhjjQNhkDLm-sgJDkKL-E3jcSPsc7yrT8FU75f3ANJxqIZL6in17QGen9ca5kQTgjxDIdKB0Ixn4_rOWhlBmcnyoIuHfOX21UMT4lXFGBkDIIVVxEMFwDkP16' },
+        { size: 'M', color: 'Cream', stockQuantity: 10, sku: 'SUT-CRM-M' },
       ],
     },
     {
@@ -115,16 +96,10 @@ async function main() {
       description: 'Áo len Merino dệt gân cao cấp, giữ ấm tốt và thoáng khí.',
       basePrice: 890000,
       discountPrice: null,
-      colors: [
-        {
-          color: 'Grey',
-          img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBdXbvB7fJ7XkkcDmR4BJVrm7GetDO1fHv-drznRYB678ObASW1qNs-OSn8SQFIz6UaQDXgRDUBivKMTi7TF2rOLDkLE1GNoYfqIez0B1gArLd3s6Qr8rfAr4y-HbBCoZ4W2fUDEVmaqS3B35RkXWqOOqjWKjGA96o_Vn7s5jlnFt6Hdxl5Y7hFWQL06ZHjpjMY60ZmV_C68PRs2OQqETNPoOH7Y3tLkwDLiL_VA5xDwS8z2s7dGu30jLdGvr1pw5m5iN3ofKmC5wXb',
-          variants: [
-            { size: 'M', stockQuantity: 18, sku: 'RMK-GRY-M' },
-            { size: 'L', stockQuantity: 15, sku: 'RMK-GRY-L' },
-            { size: 'XL', stockQuantity: 10, sku: 'RMK-GRY-XL' },
-          ],
-        },
+      variants: [
+        { size: 'M', color: 'Grey', stockQuantity: 18, sku: 'RMK-GRY-M', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBdXbvB7fJ7XkkcDmR4BJVrm7GetDO1fHv-drznRYB678ObASW1qNs-OSn8SQFIz6UaQDXgRDUBivKMTi7TF2rOLDkLE1GNoYfqIez0B1gArLd3s6Qr8rfAr4y-HbBCoZ4W2fUDEVmaqS3B35RkXWqOOqjWKjGA96o_Vn7s5jlnFt6Hdxl5Y7hFWQL06ZHjpjMY60ZmV_C68PRs2OQqETNPoOH7Y3tLkwDLiL_VA5xDwS8z2s7dGu30jLdGvr1pw5m5iN3ofKmC5wXb' },
+        { size: 'L', color: 'Grey', stockQuantity: 15, sku: 'RMK-GRY-L' },
+        { size: 'XL', color: 'Grey', stockQuantity: 10, sku: 'RMK-GRY-XL' },
       ],
     },
     {
@@ -134,74 +109,30 @@ async function main() {
       description: 'Áo khoác dạ nam cấu trúc sắc sảo, phong cách tối giản.',
       basePrice: 1450000,
       discountPrice: 1250000,
-      colors: [
-        {
-          color: 'Anthracite',
-          img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCAv_Xuo7-KdAQNHiPYZWgE0cLrdz7U4_ZrAkHwjnNRwlDtVrZhYe5tuoO9oUo0esSOLICgLATd4rLc297fch_3yibrsYLEtK_n_zUIhB6p8UL3-3K15YmII1DHE_NowRp5O-c6MzwZggDYWoSijYrmp30Qlf1tY0eKcbSrty67IL_v8OqKpIj7Hx6te3dUPH6kmHXxB4oWX_7SS9SrQ6xEniBP7W7CMRIxgti4EqYlmntMJdsxNvhYFPSi_so8iOuL1rC_LQK5nxFE',
-          variants: [
-            { size: 'M', stockQuantity: 8, sku: 'SWO-ANT-M' },
-            { size: 'L', stockQuantity: 12, sku: 'SWO-ANT-L' },
-          ],
-        },
+      variants: [
+        { size: 'M', color: 'Anthracite', stockQuantity: 8, sku: 'SWO-ANT-M', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCAv_Xuo7-KdAQNHiPYZWgE0cLrdz7U4_ZrAkHwjnNRwlDtVrZhYe5tuoO9oUo0esSOLICgLATd4rLc297fch_3yibrsYLEtK_n_zUIhB6p8UL3-3K15YmII1DHE_NowRp5O-c6MzwZggDYWoSijYrmp30Qlf1tY0eKcbSrty67IL_v8OqKpIj7Hx6te3dUPH6kmHXxB4oWX_7SS9SrQ6xEniBP7W7CMRIxgti4EqYlmntMJdsxNvhYFPSi_so8iOuL1rC_LQK5nxFE' },
+        { size: 'L', color: 'Anthracite', stockQuantity: 12, sku: 'SWO-ANT-L' },
       ],
     },
   ];
 
   for (const product of productsData) {
-    const { colors, ...productInfo } = product;
-
-    // Upsert product (thông tin chung)
-    const upsertedProduct = await prisma.product.upsert({
+    const { variants, ...productInfo } = product;
+    await prisma.product.upsert({
       where: { id: product.id },
-      update: {
-        name: productInfo.name,
-        description: productInfo.description,
-        basePrice: productInfo.basePrice,
-        discountPrice: productInfo.discountPrice,
-        categoryId: productInfo.categoryId,
-      },
+      update: productInfo,
       create: productInfo,
     });
 
-    // Upsert từng màu → variants bên trong
-    for (const c of colors) {
-      // Tìm hoặc tạo ProductColor theo (productId, color) unique
-      let productColor = await prisma.productColor.findFirst({
-        where: { productId: upsertedProduct.id, color: c.color },
+    for (const variant of variants) {
+      await prisma.productVariant.upsert({
+        where: { sku: variant.sku },
+        update: variant,
+        create: {
+          ...variant,
+          productId: product.id,
+        },
       });
-
-      if (productColor) {
-        await prisma.productColor.update({
-          where: { id: productColor.id },
-          data: { img: c.img },
-        });
-      } else {
-        productColor = await prisma.productColor.create({
-          data: {
-            productId: upsertedProduct.id,
-            color: c.color,
-            img: c.img,
-          },
-        });
-      }
-
-      // Upsert từng variant (size) cho màu này
-      for (const v of c.variants) {
-        await prisma.productVariant.upsert({
-          where: { sku: v.sku },
-          update: {
-            size: v.size,
-            stockQuantity: v.stockQuantity,
-            colorId: productColor.id,
-          },
-          create: {
-            colorId: productColor.id,
-            size: v.size,
-            stockQuantity: v.stockQuantity,
-            sku: v.sku,
-          },
-        });
-      }
     }
   }
 

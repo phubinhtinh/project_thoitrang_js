@@ -12,12 +12,8 @@ export class CartService {
       include: {
         variant: {
           include: {
-            productColor: {
-              include: {
-                product: {
-                  select: { id: true, name: true, basePrice: true, discountPrice: true },
-                },
-              },
+            product: {
+              select: { id: true, name: true, basePrice: true, discountPrice: true },
             },
           },
         },
@@ -25,8 +21,7 @@ export class CartService {
     });
 
     const cartItems = items.map((item) => {
-      const product = item.variant.productColor.product;
-      const price = product.discountPrice || product.basePrice;
+      const price = item.variant.product.discountPrice || item.variant.product.basePrice;
       return {
         ...item,
         itemTotal: Number(price) * item.quantity,

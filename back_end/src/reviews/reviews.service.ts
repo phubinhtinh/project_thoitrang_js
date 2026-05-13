@@ -35,9 +35,7 @@ export class ReviewsService {
         items: {
           some: {
             variant: {
-              productColor: {
-                productId,
-              },
+              productId,
             },
           },
         },

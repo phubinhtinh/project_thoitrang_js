@@ -10,16 +10,16 @@ import { Role } from '@prisma/client';
 export class VariantsController {
   constructor(private variantsService: VariantsService) {}
 
-  @Get('colors/:colorId/variants')
-  findByColor(@Param('colorId', ParseIntPipe) colorId: number) {
-    return this.variantsService.findByColor(colorId);
+  @Get('products/:productId/variants')
+  findByProduct(@Param('productId', ParseIntPipe) productId: number) {
+    return this.variantsService.findByProduct(productId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.admin)
-  @Post('colors/:colorId/variants')
-  create(@Param('colorId', ParseIntPipe) colorId: number, @Body() dto: CreateVariantDto) {
-    return this.variantsService.create(colorId, dto);
+  @Post('products/:productId/variants')
+  create(@Param('productId', ParseIntPipe) productId: number, @Body() dto: CreateVariantDto) {
+    return this.variantsService.create(productId, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

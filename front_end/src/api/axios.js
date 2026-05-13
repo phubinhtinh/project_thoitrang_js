@@ -65,17 +65,10 @@ export const uploadAPI = {
   },
 };
 
-// Colors APIs (ProductColor — màu + ảnh)
-export const colorsAPI = {
-  getByProduct: (productId) => API.get(`/products/${productId}/colors`),
-  create: (productId, data) => API.post(`/products/${productId}/colors`, data),
-  update: (id, data) => API.put(`/colors/${id}`, data),
-  remove: (id) => API.delete(`/colors/${id}`),
-};
-
-// Variants APIs (ProductVariant — size + stock + SKU, thuộc về 1 color)
+// Variants APIs
 export const variantsAPI = {
-  create: (colorId, data) => API.post(`/colors/${colorId}/variants`, data),
+  getByProduct: (productId) => API.get(`/products/${productId}/variants`),
+  create: (productId, data) => API.post(`/products/${productId}/variants`, data),
   update: (id, data) => API.put(`/variants/${id}`, data),
   remove: (id) => API.delete(`/variants/${id}`),
 };

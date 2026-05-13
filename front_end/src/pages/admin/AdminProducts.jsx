@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { productsAPI, categoriesAPI, colorsAPI, variantsAPI } from '../../api/axios';
+import { productsAPI, categoriesAPI, variantsAPI } from '../../api/axios';
 import ImageUpload from '../../components/ImageUpload';
 
 const emptyForm = {
@@ -11,9 +11,15 @@ const emptyForm = {
   discountPrice: '',
 };
 
-const rand = () => Math.random().toString(36).slice(2);
-const emptyVariantRow = () => ({ _key: rand(), id: null, size: '', sku: '', stockQuantity: 0 });
-const emptyColorGroup = () => ({ _key: rand(), id: null, color: '', img: '', variants: [emptyVariantRow()] });
+const emptyVariant = () => ({
+  _key: Math.random().toString(36).slice(2),
+  id: null,
+  size: '',
+  color: '',
+  stockQuantity: 0,
+  sku: '',
+  img: '',
+});
 
 const formatVND = (v) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(v) || 0);
@@ -26,8 +32,7 @@ export default function AdminProducts() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
-  const [colorGroups, setColorGroups] = useState([emptyColorGroup()]);
-  const [originalColorIds, setOriginalColorIds] = useState([]);
+  const [variants, setVariants] = useState([emptyVariant()]);
   const [originalVariantIds, setOriginalVariantIds] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -58,8 +63,7 @@ export default function AdminProducts() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
-    setColorGroups([emptyColorGroup()]);
-    setOriginalColorIds([]);
+    setVariants([emptyVariant()]);
     setOriginalVariantIds([]);
     setModalOpen(true);
   };
@@ -74,65 +78,33 @@ export default function AdminProducts() {
       discountPrice: p.discountPrice || '',
     });
     try {
-      const res = await colorsAPI.getByProduct(p.id);
-      const list = (res.data || []).map((c) => ({
-        _key: `db-color-${c.id}`,
-        id: c.id,
-        color: c.color || '',
-        img: c.img || '',
-        variants: (c.variants || []).map((v) => ({
-          _key: `db-var-${v.id}`,
-          id: v.id,
-          size: v.size || '',
-          sku: v.sku || '',
-          stockQuantity: v.stockQuantity ?? 0,
-        })),
+      const res = await variantsAPI.getByProduct(p.id);
+      const list = (res.data || []).map((v) => ({
+        _key: `db-${v.id}`,
+        id: v.id,
+        size: v.size || '',
+        color: v.color || '',
+        stockQuantity: v.stockQuantity ?? 0,
+        sku: v.sku || '',
+        img: v.img || '',
       }));
-      // Đảm bảo mỗi color có ít nhất 1 variant row
-      list.forEach((c) => { if (!c.variants.length) c.variants.push(emptyVariantRow()); });
-      setColorGroups(list.length ? list : [emptyColorGroup()]);
-      setOriginalColorIds(list.map((c) => c.id).filter(Boolean));
-      setOriginalVariantIds(list.flatMap((c) => c.variants.map((v) => v.id)).filter(Boolean));
+      setVariants(list.length ? list : [emptyVariant()]);
+      setOriginalVariantIds(list.map((v) => v.id));
     } catch {
-      setColorGroups([emptyColorGroup()]);
-      setOriginalColorIds([]);
+      setVariants([emptyVariant()]);
       setOriginalVariantIds([]);
     }
     setModalOpen(true);
   };
 
-  // Color group helpers
-  const addColorGroup = () => setColorGroups((gs) => [...gs, emptyColorGroup()]);
-  const removeColorGroup = (key) => {
-    setColorGroups((gs) => (gs.length === 1 ? gs : gs.filter((g) => g._key !== key)));
-  };
-  const updateColorField = (key, field, value) => {
-    setColorGroups((gs) => gs.map((g) => (g._key === key ? { ...g, [field]: value } : g)));
+  const updateVariantField = (key, field, value) => {
+    setVariants((vs) => vs.map((v) => (v._key === key ? { ...v, [field]: value } : v)));
   };
 
-  // Variant row helpers (within a color group)
-  const addVariantRow = (colorKey) => {
-    setColorGroups((gs) =>
-      gs.map((g) => (g._key === colorKey ? { ...g, variants: [...g.variants, emptyVariantRow()] } : g))
-    );
-  };
-  const removeVariantRow = (colorKey, varKey) => {
-    setColorGroups((gs) =>
-      gs.map((g) =>
-        g._key === colorKey
-          ? { ...g, variants: g.variants.length === 1 ? g.variants : g.variants.filter((v) => v._key !== varKey) }
-          : g
-      )
-    );
-  };
-  const updateVariantField = (colorKey, varKey, field, value) => {
-    setColorGroups((gs) =>
-      gs.map((g) =>
-        g._key === colorKey
-          ? { ...g, variants: g.variants.map((v) => (v._key === varKey ? { ...v, [field]: value } : v)) }
-          : g
-      )
-    );
+  const addVariantRow = () => setVariants((vs) => [...vs, emptyVariant()]);
+
+  const removeVariantRow = (key) => {
+    setVariants((vs) => (vs.length === 1 ? vs : vs.filter((v) => v._key !== key)));
   };
 
   const handleSubmit = async (e) => {
@@ -142,30 +114,30 @@ export default function AdminProducts() {
       return;
     }
 
-    // Validate color groups
-    const cleanGroups = colorGroups.map((g) => ({
-      ...g,
-      color: g.color.trim(),
-      img: g.img?.trim() || '',
-      variants: g.variants
-        .map((v) => ({ ...v, size: v.size.trim(), sku: v.sku.trim(), stockQuantity: Number(v.stockQuantity) || 0 }))
-        .filter((v) => v.size || v.sku),
-    })).filter((g) => g.color || g.variants.length > 0);
+    // Validate variants: ít nhất 1 dòng, mỗi dòng có size + color + sku
+    const cleanVariants = variants
+      .map((v) => ({
+        ...v,
+        size: v.size.trim(),
+        color: v.color.trim(),
+        sku: v.sku.trim(),
+        img: v.img?.trim() || '',
+        stockQuantity: Number(v.stockQuantity) || 0,
+      }))
+      .filter((v) => v.size || v.color || v.sku);
 
-    if (cleanGroups.length === 0) {
-      toast.error('Vui lòng nhập ít nhất 1 màu');
+    if (cleanVariants.length === 0) {
+      toast.error('Vui lòng nhập ít nhất 1 biến thể (size, màu, SKU)');
       return;
     }
-    for (const g of cleanGroups) {
-      if (!g.color) { toast.error('Mỗi nhóm phải có tên màu'); return; }
-      if (!g.img) { toast.error(`Màu "${g.color}" chưa có ảnh`); return; }
-      if (g.variants.length === 0) { toast.error(`Màu "${g.color}" phải có ít nhất 1 size`); return; }
-      for (const v of g.variants) {
-        if (!v.size || !v.sku) { toast.error(`Mỗi size trong màu "${g.color}" cần đủ size và SKU`); return; }
+    for (const v of cleanVariants) {
+      if (!v.size || !v.color || !v.sku) {
+        toast.error('Mỗi biến thể cần đủ size, màu và SKU');
+        return;
       }
     }
-    const allSkus = cleanGroups.flatMap((g) => g.variants.map((v) => v.sku));
-    if (new Set(allSkus).size !== allSkus.length) {
+    const skus = cleanVariants.map((v) => v.sku);
+    if (new Set(skus).size !== skus.length) {
       toast.error('SKU các biến thể không được trùng nhau');
       return;
     }
@@ -177,59 +149,41 @@ export default function AdminProducts() {
       basePrice: Number(form.basePrice),
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
     };
-
     setSaving(true);
     try {
       if (editingId) {
-        // Cập nhật product info
+        // Cập nhật thông tin chung của product
         await productsAPI.update(editingId, basePayload);
 
-        // Xóa colors/variants bị bỏ
-        const keepColorIds = cleanGroups.filter((g) => g.id).map((g) => g.id);
-        const keepVarIds = cleanGroups.flatMap((g) => g.variants.filter((v) => v.id).map((v) => v.id));
-        const delVars = originalVariantIds.filter((id) => !keepVarIds.includes(id));
-        const delColors = originalColorIds.filter((id) => !keepColorIds.includes(id));
-        await Promise.all(delVars.map((id) => variantsAPI.remove(id).catch(() => null)));
-        await Promise.all(delColors.map((id) => colorsAPI.remove(id).catch(() => null)));
-
-        // Upsert từng color
-        for (const g of cleanGroups) {
-          let colorId = g.id;
-          if (colorId) {
-            await colorsAPI.update(colorId, { color: g.color, img: g.img });
+        // Sync variants qua API riêng
+        const keepIds = cleanVariants.filter((v) => v.id).map((v) => v.id);
+        const toDelete = originalVariantIds.filter((id) => !keepIds.includes(id));
+        // Xóa trước, tạo sau — tránh trường hợp chỉ còn 1 variant bị backend chặn
+        await Promise.all(toDelete.map((id) => variantsAPI.remove(id).catch(() => null)));
+        for (const v of cleanVariants) {
+          const body = {
+            size: v.size,
+            color: v.color,
+            stockQuantity: v.stockQuantity,
+            sku: v.sku,
+            img: v.img || undefined,
+          };
+          if (v.id) {
+            await variantsAPI.update(v.id, body);
           } else {
-            // Tạo color mới kèm variants
-            const newVariants = g.variants.filter((v) => !v.id);
-            const existingVariants = g.variants.filter((v) => v.id);
-            const res = await colorsAPI.create(editingId, {
-              color: g.color,
-              img: g.img,
-              variants: newVariants.map((v) => ({ size: v.size, sku: v.sku, stockQuantity: v.stockQuantity })),
-            });
-            colorId = res.data.id;
-            // Update existing variants nếu có (hiếm khi xảy ra)
-            for (const v of existingVariants) {
-              await variantsAPI.update(v.id, { size: v.size, sku: v.sku, stockQuantity: v.stockQuantity });
-            }
-            continue; // variants đã tạo cùng color
-          }
-          // Upsert variants cho color đã có
-          for (const v of g.variants) {
-            if (v.id) {
-              await variantsAPI.update(v.id, { size: v.size, sku: v.sku, stockQuantity: v.stockQuantity });
-            } else {
-              await variantsAPI.create(colorId, { size: v.size, sku: v.sku, stockQuantity: v.stockQuantity });
-            }
+            await variantsAPI.create(editingId, body);
           }
         }
       } else {
-        // Tạo mới: gửi product + colors + variants trong 1 request
+        // Tạo mới: gửi product + variants trong 1 request (backend xuử lý transaction)
         await productsAPI.create({
           ...basePayload,
-          colors: cleanGroups.map((g) => ({
-            color: g.color,
-            img: g.img,
-            variants: g.variants.map((v) => ({ size: v.size, stockQuantity: v.stockQuantity, sku: v.sku })),
+          variants: cleanVariants.map((v) => ({
+            size: v.size,
+            color: v.color,
+            stockQuantity: v.stockQuantity,
+            sku: v.sku,
+            img: v.img || undefined,
           })),
         });
       }
@@ -319,17 +273,15 @@ export default function AdminProducts() {
                 </tr>
               )}
               {products.map((p) => {
-                const stock = p.colors?.flatMap(c => c.variants || []).reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0;
-                const colorCount = p.colors?.length || 0;
-                const variantCount = p.colors?.flatMap(c => c.variants || []).length || 0;
+                const stock = p.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0;
                 return (
                   <tr key={p.id} className="hover:bg-surface-container-low/50">
                     <td className="px-4 py-3 font-label text-xs text-secondary">{p.id}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3 min-w-[240px]">
                         <div className="w-12 h-12 bg-surface-variant flex-shrink-0 overflow-hidden">
-                          {p.colors?.[0]?.img ? (
-                            <img src={p.colors[0].img} alt={p.name} className="w-full h-full object-cover" />
+                          {p.variants?.[0]?.img ? (
+                            <img src={p.variants[0].img} alt={p.name} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-outline">
                               <span className="material-symbols-outlined text-sm">image</span>
@@ -341,7 +293,7 @@ export default function AdminProducts() {
                             {p.name}
                           </p>
                           <p className="font-label text-[10px] uppercase tracking-wider text-secondary mt-0.5">
-                            {colorCount} màu · {variantCount} biến thể
+                            {p.variants?.length || 0} biến thể
                           </p>
                         </div>
                       </div>
@@ -362,15 +314,27 @@ export default function AdminProducts() {
                       )}
                     </td>
                     <td className="px-4 py-3 font-label text-sm">
-                      <span className={stock === 0 ? 'text-error' : stock < 10 ? 'text-secondary' : 'text-on-surface'}>
+                      <span
+                        className={
+                          stock === 0 ? 'text-error' : stock < 10 ? 'text-secondary' : 'text-on-surface'
+                        }
+                      >
                         {stock}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => openEdit(p)} className="text-primary hover:text-on-background mr-3" title="Sửa">
+                      <button
+                        onClick={() => openEdit(p)}
+                        className="text-primary hover:text-on-background mr-3"
+                        title="Sửa"
+                      >
                         <span className="material-symbols-outlined text-[20px]">edit</span>
                       </button>
-                      <button onClick={() => handleDelete(p)} className="text-error hover:opacity-70" title="Xóa">
+                      <button
+                        onClick={() => handleDelete(p)}
+                        className="text-error hover:opacity-70"
+                        title="Xóa"
+                      >
                         <span className="material-symbols-outlined text-[20px]">delete</span>
                       </button>
                     </td>
@@ -384,141 +348,206 @@ export default function AdminProducts() {
 
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <form onSubmit={handleSubmit} className="bg-surface max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-surface max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
             <div className="flex items-center justify-between px-6 py-5 border-b border-outline-variant/30">
               <h3 className="font-headline text-xl text-on-background">
                 {editingId ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
               </h3>
-              <button type="button" onClick={() => setModalOpen(false)} className="text-on-surface-variant hover:text-on-surface">
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="text-on-surface-variant hover:text-on-surface"
+              >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="p-6 space-y-4">
-              {/* Product info fields */}
               <div>
-                <label className="font-label text-[10px] uppercase tracking-widest text-secondary">Tên sản phẩm *</label>
-                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low focus:border-primary outline-none font-body text-sm" />
+                <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                  Tên sản phẩm *
+                </label>
+                <input
+                  required
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low focus:border-primary outline-none font-body text-sm"
+                />
               </div>
               <div>
-                <label className="font-label text-[10px] uppercase tracking-widest text-secondary">Danh mục *</label>
-                <select required value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                  className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm">
+                <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                  Danh mục *
+                </label>
+                <select
+                  required
+                  value={form.categoryId}
+                  onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                  className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm"
+                >
                   <option value="">-- Chọn danh mục --</option>
                   {flatCategories(categories).map((c) => (
-                    <option key={c.id} value={c.id}>{'— '.repeat(c.depth)}{c.name}</option>
+                    <option key={c.id} value={c.id}>
+                      {'— '.repeat(c.depth)}
+                      {c.name}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="font-label text-[10px] uppercase tracking-widest text-secondary">Giá gốc *</label>
-                  <input required type="number" min="0" step="1000" value={form.basePrice}
+                  <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                    Giá gốc *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={form.basePrice}
                     onChange={(e) => setForm({ ...form, basePrice: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm" />
+                    className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm"
+                  />
                 </div>
                 <div>
-                  <label className="font-label text-[10px] uppercase tracking-widest text-secondary">Giá khuyến mãi</label>
-                  <input type="number" min="0" step="1000" value={form.discountPrice}
+                  <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                    Giá khuyến mãi
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={form.discountPrice}
                     onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm" />
+                    className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm"
+                  />
                 </div>
               </div>
               <div>
-                <label className="font-label text-[10px] uppercase tracking-widest text-secondary">Mô tả</label>
-                <textarea rows={3} value={form.description}
+                <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                  Mô tả
+                </label>
+                <textarea
+                  rows={4}
+                  value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm resize-none" />
+                  className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm resize-none"
+                />
               </div>
 
-              {/* Color Groups */}
+              {/* Biến thể (size / màu / kho / SKU) */}
               <div className="pt-4 border-t border-outline-variant/30">
                 <div className="flex items-center justify-between mb-3">
                   <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
-                    Màu sắc & Biến thể *
+                    Biến thể (Size / Màu / Kho / SKU) *
                   </label>
-                  <button type="button" onClick={addColorGroup}
-                    className="inline-flex items-center gap-1 text-primary hover:text-on-background font-label text-[11px] uppercase tracking-widest">
+                  <button
+                    type="button"
+                    onClick={addVariantRow}
+                    className="inline-flex items-center gap-1 text-primary hover:text-on-background font-label text-[11px] uppercase tracking-widest"
+                  >
                     <span className="material-symbols-outlined text-[16px]">add</span>
-                    Thêm màu
+                    Thêm biến thể
                   </button>
                 </div>
-
-                <div className="space-y-5">
-                  {colorGroups.map((g, gIdx) => (
-                    <div key={g._key} className="border border-outline-variant/40 bg-surface-container-low/50">
-                      {/* Color header */}
-                      <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low">
+                <div className="space-y-3">
+                  {variants.map((v, idx) => (
+                    <div
+                      key={v._key}
+                      className="relative p-4 border border-outline-variant/40 bg-surface-container-low/50"
+                    >
+                      {/* Số thứ tự + nút xóa */}
+                      <div className="flex items-center justify-between mb-3">
                         <span className="font-label text-[10px] uppercase tracking-widest text-secondary">
-                          Màu #{gIdx + 1}
+                          Biến thể #{idx + 1}
                         </span>
-                        <button type="button" onClick={() => removeColorGroup(g._key)} disabled={colorGroups.length === 1}
-                          className="inline-flex items-center gap-1 text-error hover:opacity-70 disabled:opacity-25 disabled:cursor-not-allowed font-label text-[10px] uppercase tracking-widest">
-                          <span className="material-symbols-outlined text-[16px]">delete</span> Xóa màu
+                        <button
+                          type="button"
+                          onClick={() => removeVariantRow(v._key)}
+                          disabled={variants.length === 1}
+                          className="inline-flex items-center gap-1 text-error hover:opacity-70 disabled:opacity-25 disabled:cursor-not-allowed font-label text-[10px] uppercase tracking-widest"
+                          title="Xóa biến thể"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                          Xóa
                         </button>
                       </div>
 
-                      <div className="p-4 space-y-3">
-                        {/* Color name + image */}
-                        <div className="flex items-start gap-4">
-                          <div className="flex-1">
-                            <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Tên màu *</label>
-                            <input placeholder="Đen, Đỏ, Xanh..." value={g.color}
-                              onChange={(e) => updateColorField(g._key, 'color', e.target.value)}
-                              className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm" />
-                          </div>
-                          <div className="flex-1">
-                            <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Ảnh màu *</label>
-                            <ImageUpload value={g.img} onChange={(url) => updateColorField(g._key, 'img', url)} size="sm" />
-                          </div>
+                      {/* 4 inputs: 2 cột × 2 hàng */}
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Size *</label>
+                          <input
+                            placeholder="S, M, L, 40..."
+                            value={v.size}
+                            onChange={(e) => updateVariantField(v._key, 'size', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
                         </div>
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Màu sắc *</label>
+                          <input
+                            placeholder="Đen, Đỏ, Xanh..."
+                            value={v.color}
+                            onChange={(e) => updateVariantField(v._key, 'color', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Tồn kho *</label>
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={v.stockQuantity}
+                            onChange={(e) => updateVariantField(v._key, 'stockQuantity', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">SKU *</label>
+                          <input
+                            placeholder="Mã duy nhất..."
+                            value={v.sku}
+                            onChange={(e) => updateVariantField(v._key, 'sku', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
+                        </div>
+                      </div>
 
-                        {/* Variant rows (sizes) */}
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-label text-[9px] uppercase tracking-widest text-secondary">Sizes</span>
-                            <button type="button" onClick={() => addVariantRow(g._key)}
-                              className="inline-flex items-center gap-0.5 text-primary font-label text-[10px] uppercase tracking-widest">
-                              <span className="material-symbols-outlined text-[14px]">add</span> Thêm size
-                            </button>
-                          </div>
-                          <div className="space-y-2">
-                            {g.variants.map((v, vIdx) => (
-                              <div key={v._key} className="flex items-center gap-2">
-                                <input placeholder="S, M, L..." value={v.size}
-                                  onChange={(e) => updateVariantField(g._key, v._key, 'size', e.target.value)}
-                                  className="flex-1 px-2 py-1.5 border border-outline-variant bg-surface font-body text-sm" />
-                                <input placeholder="SKU..." value={v.sku}
-                                  onChange={(e) => updateVariantField(g._key, v._key, 'sku', e.target.value)}
-                                  className="flex-1 px-2 py-1.5 border border-outline-variant bg-surface font-body text-sm" />
-                                <input type="number" min="0" placeholder="Kho" value={v.stockQuantity}
-                                  onChange={(e) => updateVariantField(g._key, v._key, 'stockQuantity', e.target.value)}
-                                  className="w-20 px-2 py-1.5 border border-outline-variant bg-surface font-body text-sm" />
-                                <button type="button" onClick={() => removeVariantRow(g._key, v._key)}
-                                  disabled={g.variants.length === 1}
-                                  className="text-error hover:opacity-70 disabled:opacity-25 disabled:cursor-not-allowed">
-                                  <span className="material-symbols-outlined text-[16px]">close</span>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                      {/* Ảnh biến thể */}
+                      <div className="flex items-center gap-3 pt-3 border-t border-outline-variant/20">
+                        <span className="font-label text-[9px] uppercase tracking-widest text-secondary whitespace-nowrap">
+                          Ảnh
+                        </span>
+                        <ImageUpload
+                          value={v.img}
+                          onChange={(url) => updateVariantField(v._key, 'img', url)}
+                          size="sm"
+                        />
                       </div>
                     </div>
                   ))}
                 </div>
                 <p className="font-body text-[11px] text-secondary mt-2">
-                  Mỗi màu có 1 ảnh đại diện. Mỗi size trong màu là 1 biến thể bán được. SKU phải duy nhất.
+                  Mỗi cặp size + màu là 1 biến thể. SKU phải duy nhất trong toàn hệ thống.
                 </p>
               </div>
             </div>
             <div className="px-6 py-4 border-t border-outline-variant/30 flex justify-end gap-3">
-              <button type="button" onClick={() => setModalOpen(false)}
-                className="px-5 py-2.5 font-label text-xs uppercase tracking-widest text-on-surface-variant hover:text-on-surface">
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="px-5 py-2.5 font-label text-xs uppercase tracking-widest text-on-surface-variant hover:text-on-surface"
+              >
                 Hủy
               </button>
-              <button type="submit" disabled={saving}
-                className="bg-primary text-on-primary px-6 py-2.5 font-label text-xs uppercase tracking-widest hover:bg-on-background disabled:opacity-50 transition-colors">
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-primary text-on-primary px-6 py-2.5 font-label text-xs uppercase tracking-widest hover:bg-on-background disabled:opacity-50 transition-colors"
+              >
                 {saving ? 'Đang lưu...' : editingId ? 'Cập nhật' : 'Tạo mới'}
               </button>
             </div>

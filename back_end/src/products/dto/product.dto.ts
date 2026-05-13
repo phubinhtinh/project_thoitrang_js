@@ -16,6 +16,10 @@ export class ProductVariantInlineDto {
   @IsNotEmpty()
   size: string;
 
+  @IsString()
+  @IsNotEmpty()
+  color: string;
+
   @IsInt()
   @Min(0)
   @Type(() => Number)
@@ -24,22 +28,10 @@ export class ProductVariantInlineDto {
   @IsString()
   @IsNotEmpty()
   sku: string;
-}
-
-export class ProductColorInlineDto {
-  @IsString()
-  @IsNotEmpty()
-  color: string;
 
   @IsString()
-  @IsNotEmpty()
-  img: string;
-
-  @IsArray()
-  @ArrayMinSize(1, { message: 'Mỗi màu phải có ít nhất 1 size' })
-  @ValidateNested({ each: true })
-  @Type(() => ProductVariantInlineDto)
-  variants: ProductVariantInlineDto[];
+  @IsOptional()
+  img?: string;
 }
 
 export class CreateProductDto {
@@ -65,10 +57,10 @@ export class CreateProductDto {
   discountPrice?: number;
 
   @IsArray()
-  @ArrayMinSize(1, { message: 'Sản phẩm phải có ít nhất 1 màu' })
+  @ArrayMinSize(1, { message: 'Sản phẩm phải có ít nhất 1 biến thể' })
   @ValidateNested({ each: true })
-  @Type(() => ProductColorInlineDto)
-  colors: ProductColorInlineDto[];
+  @Type(() => ProductVariantInlineDto)
+  variants: ProductVariantInlineDto[];
 }
 
 export class UpdateProductDto {
