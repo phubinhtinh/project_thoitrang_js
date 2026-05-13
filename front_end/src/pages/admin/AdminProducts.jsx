@@ -451,52 +451,75 @@ export default function AdminProducts() {
                     Thêm biến thể
                   </button>
                 </div>
-                <div className="space-y-2">
-                  {variants.map((v) => (
+                <div className="space-y-3">
+                  {variants.map((v, idx) => (
                     <div
                       key={v._key}
-                      className="p-3 border border-outline-variant/40 bg-surface-container-low/50 space-y-2"
+                      className="relative p-4 border border-outline-variant/40 bg-surface-container-low/50"
                     >
-                      <div className="grid grid-cols-[1fr_1fr_80px_1.2fr_auto] gap-2 items-center">
-                        <input
-                          placeholder="Size (S, M, 40...)"
-                          value={v.size}
-                          onChange={(e) => updateVariantField(v._key, 'size', e.target.value)}
-                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
-                        />
-                        <input
-                          placeholder="Màu (Đen, Đỏ...)"
-                          value={v.color}
-                          onChange={(e) => updateVariantField(v._key, 'color', e.target.value)}
-                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
-                        />
-                        <input
-                          type="number"
-                          min="0"
-                          placeholder="Kho"
-                          value={v.stockQuantity}
-                          onChange={(e) => updateVariantField(v._key, 'stockQuantity', e.target.value)}
-                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
-                        />
-                        <input
-                          placeholder="SKU (duy nhất)"
-                          value={v.sku}
-                          onChange={(e) => updateVariantField(v._key, 'sku', e.target.value)}
-                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
-                        />
+                      {/* Số thứ tự + nút xóa */}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                          Biến thể #{idx + 1}
+                        </span>
                         <button
                           type="button"
                           onClick={() => removeVariantRow(v._key)}
                           disabled={variants.length === 1}
-                          className="text-error hover:opacity-70 disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1 text-error hover:opacity-70 disabled:opacity-25 disabled:cursor-not-allowed font-label text-[10px] uppercase tracking-widest"
                           title="Xóa biến thể"
                         >
-                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                          Xóa
                         </button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-label text-[10px] uppercase tracking-widest text-secondary w-24">
-                          Ảnh riêng
+
+                      {/* 4 inputs: 2 cột × 2 hàng */}
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Size *</label>
+                          <input
+                            placeholder="S, M, L, 40..."
+                            value={v.size}
+                            onChange={(e) => updateVariantField(v._key, 'size', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Màu sắc *</label>
+                          <input
+                            placeholder="Đen, Đỏ, Xanh..."
+                            value={v.color}
+                            onChange={(e) => updateVariantField(v._key, 'color', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">Tồn kho *</label>
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={v.stockQuantity}
+                            onChange={(e) => updateVariantField(v._key, 'stockQuantity', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-label text-[9px] uppercase tracking-widest text-secondary block mb-1">SKU *</label>
+                          <input
+                            placeholder="Mã duy nhất..."
+                            value={v.sku}
+                            onChange={(e) => updateVariantField(v._key, 'sku', e.target.value)}
+                            className="w-full px-2.5 py-2 border border-outline-variant bg-surface font-body text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Ảnh biến thể */}
+                      <div className="flex items-center gap-3 pt-3 border-t border-outline-variant/20">
+                        <span className="font-label text-[9px] uppercase tracking-widest text-secondary whitespace-nowrap">
+                          Ảnh
                         </span>
                         <ImageUpload
                           value={v.img}
