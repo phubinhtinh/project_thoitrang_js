@@ -6,23 +6,23 @@ export declare class OrdersService {
     checkout(userId: number, dto: CheckoutDto): Promise<{
         message: string;
         order: {
-            totalPrice: import("@prisma/client/runtime/library").Decimal;
-            status: import(".prisma/client").$Enums.OrderStatus;
-            paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
-            paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-            shippingAddress: string;
-            phoneReceiver: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
-            id: number;
             userId: number | null;
+            shippingAddress: string;
+            phoneReceiver: string;
+            paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+            status: import(".prisma/client").$Enums.OrderStatus;
+            paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+            totalPrice: import("@prisma/client/runtime/library").Decimal;
         };
     }>;
     findAll(userId: number | null): Promise<({
         user: {
             id: number;
-            fullName: string;
             email: string;
+            fullName: string;
         } | null;
         items: ({
             variant: {
@@ -34,36 +34,36 @@ export declare class OrdersService {
             } & {
                 id: number;
                 img: string | null;
+                sku: string;
                 productId: number;
                 size: string;
                 color: string;
                 stockQuantity: number;
-                sku: string;
             };
         } & {
             id: number;
             productVariantId: number;
             quantity: number;
-            orderId: number;
             price: import("@prisma/client/runtime/library").Decimal;
+            orderId: number;
         })[];
     } & {
-        totalPrice: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.OrderStatus;
-        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
-        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-        shippingAddress: string;
-        phoneReceiver: string;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
         userId: number | null;
+        shippingAddress: string;
+        phoneReceiver: string;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+        totalPrice: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     findOne(id: number): Promise<{
         user: {
             id: number;
-            fullName: string;
             email: string;
+            fullName: string;
         } | null;
         items: ({
             variant: {
@@ -75,65 +75,65 @@ export declare class OrdersService {
             } & {
                 id: number;
                 img: string | null;
+                sku: string;
                 productId: number;
                 size: string;
                 color: string;
                 stockQuantity: number;
-                sku: string;
             };
         } & {
             id: number;
             productVariantId: number;
             quantity: number;
-            orderId: number;
             price: import("@prisma/client/runtime/library").Decimal;
+            orderId: number;
         })[];
     } & {
-        totalPrice: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.OrderStatus;
-        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
-        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-        shippingAddress: string;
-        phoneReceiver: string;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
         userId: number | null;
+        shippingAddress: string;
+        phoneReceiver: string;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+        totalPrice: import("@prisma/client/runtime/library").Decimal;
     }>;
     updateStatus(id: number, dto: UpdateOrderStatusDto): Promise<{
-        totalPrice: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.OrderStatus;
-        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
-        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-        shippingAddress: string;
-        phoneReceiver: string;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
         userId: number | null;
+        shippingAddress: string;
+        phoneReceiver: string;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+        totalPrice: import("@prisma/client/runtime/library").Decimal;
     }>;
     updatePaymentStatus(id: number, dto: UpdatePaymentStatusDto): Promise<{
-        totalPrice: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.OrderStatus;
-        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
-        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-        shippingAddress: string;
-        phoneReceiver: string;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
         userId: number | null;
+        shippingAddress: string;
+        phoneReceiver: string;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+        totalPrice: import("@prisma/client/runtime/library").Decimal;
     }>;
     confirmBankingPayment(orderId: number, userId: number): Promise<{
-        totalPrice: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.OrderStatus;
-        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
-        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-        shippingAddress: string;
-        phoneReceiver: string;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
         userId: number | null;
+        shippingAddress: string;
+        phoneReceiver: string;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+        totalPrice: import("@prisma/client/runtime/library").Decimal;
     }>;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { productsAPI, categoriesAPI } from '../../api/axios';
+import { productsAPI, categoriesAPI, variantsAPI } from '../../api/axios';
+import ImageUpload from '../../components/ImageUpload';
 
 const emptyForm = {
   name: '',
@@ -10,6 +11,16 @@ const emptyForm = {
   discountPrice: '',
   img: '',
 };
+
+const emptyVariant = () => ({
+  _key: Math.random().toString(36).slice(2),
+  id: null,
+  size: '',
+  color: '',
+  stockQuantity: 0,
+  sku: '',
+  img: '',
+});
 
 const formatVND = (v) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(v) || 0);
@@ -22,6 +33,8 @@ export default function AdminProducts() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [variants, setVariants] = useState([emptyVariant()]);
+  const [originalVariantIds, setOriginalVariantIds] = useState([]);
   const [saving, setSaving] = useState(false);
 
   const load = () => {
@@ -51,10 +64,12 @@ export default function AdminProducts() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setVariants([emptyVariant()]);
+    setOriginalVariantIds([]);
     setModalOpen(true);
   };
 
-  const openEdit = (p) => {
+  const openEdit = async (p) => {
     setEditingId(p.id);
     setForm({
       name: p.name || '',
@@ -64,7 +79,34 @@ export default function AdminProducts() {
       discountPrice: p.discountPrice || '',
       img: p.img || '',
     });
+    try {
+      const res = await variantsAPI.getByProduct(p.id);
+      const list = (res.data || []).map((v) => ({
+        _key: `db-${v.id}`,
+        id: v.id,
+        size: v.size || '',
+        color: v.color || '',
+        stockQuantity: v.stockQuantity ?? 0,
+        sku: v.sku || '',
+        img: v.img || '',
+      }));
+      setVariants(list.length ? list : [emptyVariant()]);
+      setOriginalVariantIds(list.map((v) => v.id));
+    } catch {
+      setVariants([emptyVariant()]);
+      setOriginalVariantIds([]);
+    }
     setModalOpen(true);
+  };
+
+  const updateVariantField = (key, field, value) => {
+    setVariants((vs) => vs.map((v) => (v._key === key ? { ...v, [field]: value } : v)));
+  };
+
+  const addVariantRow = () => setVariants((vs) => [...vs, emptyVariant()]);
+
+  const removeVariantRow = (key) => {
+    setVariants((vs) => (vs.length === 1 ? vs : vs.filter((v) => v._key !== key)));
   };
 
   const handleSubmit = async (e) => {
@@ -73,6 +115,35 @@ export default function AdminProducts() {
       toast.error('Vui lòng nhập tên, danh mục và giá');
       return;
     }
+
+    // Validate variants: ít nhất 1 dòng, mỗi dòng có size + color + sku
+    const cleanVariants = variants
+      .map((v) => ({
+        ...v,
+        size: v.size.trim(),
+        color: v.color.trim(),
+        sku: v.sku.trim(),
+        img: v.img?.trim() || '',
+        stockQuantity: Number(v.stockQuantity) || 0,
+      }))
+      .filter((v) => v.size || v.color || v.sku);
+
+    if (cleanVariants.length === 0) {
+      toast.error('Vui lòng nhập ít nhất 1 biến thể (size, màu, SKU)');
+      return;
+    }
+    for (const v of cleanVariants) {
+      if (!v.size || !v.color || !v.sku) {
+        toast.error('Mỗi biến thể cần đủ size, màu và SKU');
+        return;
+      }
+    }
+    const skus = cleanVariants.map((v) => v.sku);
+    if (new Set(skus).size !== skus.length) {
+      toast.error('SKU các biến thể không được trùng nhau');
+      return;
+    }
+
     const payload = {
       name: form.name,
       description: form.description || undefined,
@@ -83,13 +154,37 @@ export default function AdminProducts() {
     };
     setSaving(true);
     try {
+      let productId = editingId;
       if (editingId) {
         await productsAPI.update(editingId, payload);
-        toast.success('Đã cập nhật sản phẩm');
       } else {
-        await productsAPI.create(payload);
-        toast.success('Đã tạo sản phẩm');
+        const res = await productsAPI.create(payload);
+        productId = res.data?.id;
       }
+
+      // Sync variants
+      const keepIds = cleanVariants.filter((v) => v.id).map((v) => v.id);
+      // Xóa variant bị remove khỏi UI
+      const toDelete = originalVariantIds.filter((id) => !keepIds.includes(id));
+      await Promise.all(toDelete.map((id) => variantsAPI.remove(id).catch(() => null)));
+
+      // Tạo / cập nhật
+      for (const v of cleanVariants) {
+        const body = {
+          size: v.size,
+          color: v.color,
+          stockQuantity: v.stockQuantity,
+          sku: v.sku,
+          img: v.img || undefined,
+        };
+        if (v.id) {
+          await variantsAPI.update(v.id, body);
+        } else {
+          await variantsAPI.create(productId, body);
+        }
+      }
+
+      toast.success(editingId ? 'Đã cập nhật sản phẩm' : 'Đã tạo sản phẩm');
       setModalOpen(false);
       load();
     } catch (err) {
@@ -326,22 +421,13 @@ export default function AdminProducts() {
                 </div>
               </div>
               <div>
-                <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
-                  URL hình ảnh
+                <label className="font-label text-[10px] uppercase tracking-widest text-secondary block mb-2">
+                  Hình ảnh chính
                 </label>
-                <input
+                <ImageUpload
                   value={form.img}
-                  onChange={(e) => setForm({ ...form, img: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm"
+                  onChange={(url) => setForm({ ...form, img: url })}
                 />
-                {form.img && (
-                  <img
-                    src={form.img}
-                    alt="preview"
-                    className="mt-3 w-full max-h-48 object-cover border border-outline-variant/30"
-                  />
-                )}
               </div>
               <div>
                 <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
@@ -353,6 +439,82 @@ export default function AdminProducts() {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm resize-none"
                 />
+              </div>
+
+              {/* Biến thể (size / màu / kho / SKU) */}
+              <div className="pt-4 border-t border-outline-variant/30">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                    Biến thể (Size / Màu / Kho / SKU) *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addVariantRow}
+                    className="inline-flex items-center gap-1 text-primary hover:text-on-background font-label text-[11px] uppercase tracking-widest"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    Thêm biến thể
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {variants.map((v) => (
+                    <div
+                      key={v._key}
+                      className="p-3 border border-outline-variant/40 bg-surface-container-low/50 space-y-2"
+                    >
+                      <div className="grid grid-cols-[1fr_1fr_80px_1.2fr_auto] gap-2 items-center">
+                        <input
+                          placeholder="Size (S, M, 40...)"
+                          value={v.size}
+                          onChange={(e) => updateVariantField(v._key, 'size', e.target.value)}
+                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
+                        />
+                        <input
+                          placeholder="Màu (Đen, Đỏ...)"
+                          value={v.color}
+                          onChange={(e) => updateVariantField(v._key, 'color', e.target.value)}
+                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
+                        />
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Kho"
+                          value={v.stockQuantity}
+                          onChange={(e) => updateVariantField(v._key, 'stockQuantity', e.target.value)}
+                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
+                        />
+                        <input
+                          placeholder="SKU (duy nhất)"
+                          value={v.sku}
+                          onChange={(e) => updateVariantField(v._key, 'sku', e.target.value)}
+                          className="px-2 py-2 border border-outline-variant bg-surface font-body text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeVariantRow(v._key)}
+                          disabled={variants.length === 1}
+                          className="text-error hover:opacity-70 disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Xóa biến thể"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-label text-[10px] uppercase tracking-widest text-secondary w-24">
+                          Ảnh riêng
+                        </span>
+                        <ImageUpload
+                          value={v.img}
+                          onChange={(url) => updateVariantField(v._key, 'img', url)}
+                          size="sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="font-body text-[11px] text-secondary mt-2">
+                  Mỗi cặp size + màu là 1 biến thể. SKU phải duy nhất trong toàn hệ thống.
+                </p>
               </div>
             </div>
             <div className="px-6 py-4 border-t border-outline-variant/30 flex justify-end gap-3">

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -52,6 +52,17 @@ export const productsAPI = {
   create: (data) => API.post('/products', data),
   update: (id, data) => API.put(`/products/${id}`, data),
   remove: (id) => API.delete(`/products/${id}`),
+};
+
+// Upload APIs
+export const uploadAPI = {
+  uploadImage: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return API.post('/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Variants APIs

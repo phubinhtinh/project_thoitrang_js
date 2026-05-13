@@ -39,6 +39,10 @@ export default function ProductDetailPage() {
     if (product && colors.length > 0 && !selectedColor) {
       setSelectedColor(colors[0]);
     }
+    // Nếu chỉ có 1 size duy nhất → tự chọn luôn
+    if (product && sizes.length === 1 && !selectedSize) {
+      setSelectedSize(sizes[0]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
@@ -67,8 +71,20 @@ export default function ProductDetailPage() {
       toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
       return;
     }
+    const hasVariants = (product?.variants?.length || 0) > 0;
+    if (!hasVariants) {
+      toast.error('Sản phẩm này tạm chưa có biến thể để bán');
+      return;
+    }
     if (!selectedVariant) {
-      toast.error('Vui lòng chọn size và màu sắc');
+      // Báo lỗi cụ thể: thiếu size hay thiếu màu
+      if (sizes.length > 1 && !selectedSize) {
+        toast.error('Vui lòng chọn size');
+      } else if (colors.length > 1 && !selectedColor) {
+        toast.error('Vui lòng chọn màu sắc');
+      } else {
+        toast.error('Vui lòng chọn size và màu sắc');
+      }
       return;
     }
     if (selectedVariant.stockQuantity <= 0) {

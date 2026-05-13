@@ -10,10 +10,10 @@
  *   - 970407 = Techcombank (cũ)
  */
 export const BANK_CONFIG = {
-  bankBin: '970422',
-  bankName: 'MB Bank',
-  accountNumber: '9704229212345678',
-  accountName: 'SHOP THOITRANG ATELIER',
+  bankBin: '970415',
+  bankName: 'VietinBank',
+  accountNumber: '109877010269',
+  accountName: 'NGUYEN VAN PHU',
 };
 
 /**

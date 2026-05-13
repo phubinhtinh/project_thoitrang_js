@@ -3,3 +3,7 @@ node_modules
 .env
 
 /generated/prisma
+
+# Ảnh upload từ admin (không commit vào git)
+/uploads/*
+!/uploads/.gitkeep

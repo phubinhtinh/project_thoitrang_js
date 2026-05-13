@@ -9,6 +9,7 @@ import { VariantsModule } from './variants/variants.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { UploadModule } from './upload/upload.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
@@ -28,6 +29,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     CartModule,
     OrdersModule,
     ReviewsModule,
+    UploadModule,
   ],
   providers: [
     // Đăng ký ThrottlerGuard toàn cục

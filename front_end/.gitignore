@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Env files (giữ lại .env.production để Render dùng)
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

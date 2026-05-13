@@ -18,6 +18,7 @@ const variants_module_1 = require("./variants/variants.module");
 const cart_module_1 = require("./cart/cart.module");
 const orders_module_1 = require("./orders/orders.module");
 const reviews_module_1 = require("./reviews/reviews.module");
+const upload_module_1 = require("./upload/upload.module");
 const logger_middleware_1 = require("./common/middleware/logger.middleware");
 let AppModule = class AppModule {
     configure(consumer) {
@@ -42,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
             cart_module_1.CartModule,
             orders_module_1.OrdersModule,
             reviews_module_1.ReviewsModule,
+            upload_module_1.UploadModule,
         ],
         providers: [
             {

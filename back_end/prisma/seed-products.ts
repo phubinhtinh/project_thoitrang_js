@@ -278,14 +278,14 @@ const PRODUCTS_BY_CATEGORY: Record<string, ProductSeed[]> = {
       discountPrice: 3990000,
       img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85&auto=format&fit=crop',
       colorImages: {
-        'Đen': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85&auto=format&fit=crop',
-        'Trắng': 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=900&q=85&auto=format&fit=crop',
+        'Đỏ': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85&auto=format&fit=crop',
+        'Hồng Trắng': 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=900&q=85&auto=format&fit=crop',
       },
       variants: [
-        { size: '40', color: 'Đen', stockQuantity: 12, sku: 'GIAY-ADI-UB-BK-40' },
-        { size: '41', color: 'Đen', stockQuantity: 15, sku: 'GIAY-ADI-UB-BK-41' },
-        { size: '42', color: 'Trắng', stockQuantity: 10, sku: 'GIAY-ADI-UB-WH-42' },
-        { size: '43', color: 'Trắng', stockQuantity: 8, sku: 'GIAY-ADI-UB-WH-43' },
+        { size: '40', color: 'Đỏ', stockQuantity: 12, sku: 'GIAY-ADI-UB-RD-40' },
+        { size: '41', color: 'Đỏ', stockQuantity: 15, sku: 'GIAY-ADI-UB-RD-41' },
+        { size: '42', color: 'Hồng Trắng', stockQuantity: 10, sku: 'GIAY-ADI-UB-PW-42' },
+        { size: '43', color: 'Hồng Trắng', stockQuantity: 8, sku: 'GIAY-ADI-UB-PW-43' },
       ],
     },
     {
