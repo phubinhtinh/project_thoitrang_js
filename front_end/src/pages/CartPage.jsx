@@ -69,10 +69,10 @@ export default function CartPage() {
               return (
                 <div key={item.id} className="flex flex-col md:flex-row gap-6 bg-surface-container-low p-6 md:p-8 group">
                   <div className="w-full md:w-48 h-60 bg-surface-variant overflow-hidden flex-shrink-0">
-                    {product?.img ? (
+                    {item.variant?.img ? (
                       <img
                         alt={product.name}
-                        src={product.img}
+                        src={item.variant.img}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (

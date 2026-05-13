@@ -46,11 +46,11 @@ export default function ProductDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
-  // Ảnh hiển thị: ưu tiên ảnh của variant đang chọn, rồi tới ảnh của 1 variant cùng màu, cuối cùng là ảnh product
+  // Ảnh hiển thị: ưu tiên ảnh của variant đang chọn, rồi tới ảnh của 1 variant cùng màu, cuối cùng là ảnh variant đầu tiên
   const displayedImage =
     selectedVariant?.img
     || product?.variants?.find(v => v.color === selectedColor)?.img
-    || product?.img;
+    || product?.variants?.[0]?.img;
 
   // Find matching variant
   useEffect(() => {
@@ -162,7 +162,7 @@ export default function ProductDetailPage() {
             <div className="flex gap-3 flex-wrap">
               {colors.map(c => {
                 const variantWithImg = product.variants.find(v => v.color === c && v.img);
-                const thumb = variantWithImg?.img || product.img;
+                const thumb = variantWithImg?.img || product.variants?.[0]?.img;
                 if (!thumb) return null;
                 return (
                   <button

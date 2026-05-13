@@ -94,7 +94,7 @@ export class OrdersService {
           include: {
             variant: {
               include: {
-                product: { select: { id: true, name: true, img: true } },
+                product: { select: { id: true, name: true } },
               },
             },
           },
@@ -113,7 +113,7 @@ export class OrdersService {
           include: {
             variant: {
               include: {
-                product: { select: { id: true, name: true, img: true } },
+                product: { select: { id: true, name: true } },
               },
             },
           },

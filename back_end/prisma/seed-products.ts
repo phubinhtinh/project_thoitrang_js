@@ -420,7 +420,9 @@ async function main() {
     console.log(`📦 Danh mục "${catName}" (id=${categoryId})`);
 
     for (const p of products) {
-      const { variants, colorImages, ...productInfo } = p;
+      // `img` cũ là ảnh bìa sản phẩm — không còn lưu trong bảng Product nữa,
+      // chỉ dùng làm fallback cho ảnh biến thể bên dưới.
+      const { variants, colorImages, img: _img, ...productInfo } = p;
 
       // Upsert theo tên+categoryId để tránh trùng khi chạy lại
       const existing = await prisma.product.findFirst({

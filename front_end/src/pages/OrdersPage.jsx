@@ -88,8 +88,8 @@ export default function OrdersPage() {
                 {order.items?.map(item => (
                   <div key={item.id} className="flex gap-4 items-center">
                     <div className="w-16 h-20 bg-surface-variant flex-shrink-0 overflow-hidden">
-                      {item.variant?.product?.img ? (
-                        <img src={item.variant.product.img} alt={item.variant.product.name} className="w-full h-full object-cover"/>
+                      {item.variant?.img ? (
+                        <img src={item.variant.img} alt={item.variant.product?.name} className="w-full h-full object-cover"/>
                       ) : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline-variant text-sm">image</span></div>}
                     </div>
                     <div className="flex-1">

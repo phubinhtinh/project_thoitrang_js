@@ -13,7 +13,7 @@ export class CartService {
         variant: {
           include: {
             product: {
-              select: { id: true, name: true, basePrice: true, discountPrice: true, img: true },
+              select: { id: true, name: true, basePrice: true, discountPrice: true },
             },
           },
         },

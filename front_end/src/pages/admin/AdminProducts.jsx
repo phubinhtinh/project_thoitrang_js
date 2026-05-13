@@ -9,7 +9,6 @@ const emptyForm = {
   categoryId: '',
   basePrice: '',
   discountPrice: '',
-  img: '',
 };
 
 const emptyVariant = () => ({
@@ -77,7 +76,6 @@ export default function AdminProducts() {
       categoryId: p.categoryId || p.category?.id || '',
       basePrice: p.basePrice || '',
       discountPrice: p.discountPrice || '',
-      img: p.img || '',
     });
     try {
       const res = await variantsAPI.getByProduct(p.id);
@@ -144,44 +142,50 @@ export default function AdminProducts() {
       return;
     }
 
-    const payload = {
+    const basePayload = {
       name: form.name,
       description: form.description || undefined,
       categoryId: Number(form.categoryId),
       basePrice: Number(form.basePrice),
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
-      img: form.img || undefined,
     };
     setSaving(true);
     try {
-      let productId = editingId;
       if (editingId) {
-        await productsAPI.update(editingId, payload);
-      } else {
-        const res = await productsAPI.create(payload);
-        productId = res.data?.id;
-      }
+        // Cập nhật thông tin chung của product
+        await productsAPI.update(editingId, basePayload);
 
-      // Sync variants
-      const keepIds = cleanVariants.filter((v) => v.id).map((v) => v.id);
-      // Xóa variant bị remove khỏi UI
-      const toDelete = originalVariantIds.filter((id) => !keepIds.includes(id));
-      await Promise.all(toDelete.map((id) => variantsAPI.remove(id).catch(() => null)));
-
-      // Tạo / cập nhật
-      for (const v of cleanVariants) {
-        const body = {
-          size: v.size,
-          color: v.color,
-          stockQuantity: v.stockQuantity,
-          sku: v.sku,
-          img: v.img || undefined,
-        };
-        if (v.id) {
-          await variantsAPI.update(v.id, body);
-        } else {
-          await variantsAPI.create(productId, body);
+        // Sync variants qua API riêng
+        const keepIds = cleanVariants.filter((v) => v.id).map((v) => v.id);
+        const toDelete = originalVariantIds.filter((id) => !keepIds.includes(id));
+        // Xóa trước, tạo sau — tránh trường hợp chỉ còn 1 variant bị backend chặn
+        await Promise.all(toDelete.map((id) => variantsAPI.remove(id).catch(() => null)));
+        for (const v of cleanVariants) {
+          const body = {
+            size: v.size,
+            color: v.color,
+            stockQuantity: v.stockQuantity,
+            sku: v.sku,
+            img: v.img || undefined,
+          };
+          if (v.id) {
+            await variantsAPI.update(v.id, body);
+          } else {
+            await variantsAPI.create(editingId, body);
+          }
         }
+      } else {
+        // Tạo mới: gửi product + variants trong 1 request (backend xuử lý transaction)
+        await productsAPI.create({
+          ...basePayload,
+          variants: cleanVariants.map((v) => ({
+            size: v.size,
+            color: v.color,
+            stockQuantity: v.stockQuantity,
+            sku: v.sku,
+            img: v.img || undefined,
+          })),
+        });
       }
 
       toast.success(editingId ? 'Đã cập nhật sản phẩm' : 'Đã tạo sản phẩm');
@@ -276,8 +280,8 @@ export default function AdminProducts() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3 min-w-[240px]">
                         <div className="w-12 h-12 bg-surface-variant flex-shrink-0 overflow-hidden">
-                          {p.img ? (
-                            <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                          {p.variants?.[0]?.img ? (
+                            <img src={p.variants[0].img} alt={p.name} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-outline">
                               <span className="material-symbols-outlined text-sm">image</span>
@@ -419,15 +423,6 @@ export default function AdminProducts() {
                     className="w-full mt-1 px-3 py-2 border border-outline-variant bg-surface-container-low font-body text-sm"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="font-label text-[10px] uppercase tracking-widest text-secondary block mb-2">
-                  Hình ảnh chính
-                </label>
-                <ImageUpload
-                  value={form.img}
-                  onChange={(url) => setForm({ ...form, img: url })}
-                />
               </div>
               <div>
                 <label className="font-label text-[10px] uppercase tracking-widest text-secondary">

@@ -76,6 +76,7 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto) {
+    // Tạo product + variants trong cùng 1 giao dịch
     return this.prisma.product.create({
       data: {
         categoryId: dto.categoryId,
@@ -83,8 +84,17 @@ export class ProductsService {
         description: dto.description,
         basePrice: dto.basePrice,
         discountPrice: dto.discountPrice,
-        img: dto.img,
+        variants: {
+          create: dto.variants.map((v) => ({
+            size: v.size,
+            color: v.color,
+            stockQuantity: v.stockQuantity,
+            sku: v.sku,
+            img: v.img,
+          })),
+        },
       },
+      include: { variants: true, category: { select: { id: true, name: true } } },
     });
   }
 

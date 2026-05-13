@@ -209,9 +209,9 @@ export default function AdminOrders() {
                             {o.items?.map((it) => (
                               <div key={it.id} className="flex items-center gap-3 text-sm">
                                 <div className="w-10 h-10 bg-surface-variant flex-shrink-0 overflow-hidden">
-                                  {it.variant?.product?.img ? (
+                                  {it.variant?.img ? (
                                     <img
-                                      src={it.variant.product.img}
+                                      src={it.variant.img}
                                       alt=""
                                       className="w-full h-full object-cover"
                                     />

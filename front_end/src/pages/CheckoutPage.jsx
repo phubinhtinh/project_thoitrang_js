@@ -194,8 +194,8 @@ export default function CheckoutPage() {
               return (
                 <div key={item.id} className="flex gap-4">
                   <div className="w-20 h-24 bg-surface-variant flex-shrink-0 overflow-hidden">
-                    {product?.img ? (
-                      <img src={product.img} alt={product.name} className="w-full h-full object-cover" />
+                    {item.variant?.img ? (
+                      <img src={item.variant.img} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <span className="material-symbols-outlined text-outline-variant">image</span>

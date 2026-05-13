@@ -72,7 +72,6 @@ model Product {
   description   String?  @db.Text
   basePrice     Decimal  @map("base_price") @db.Decimal(10, 2)
   discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
-  img           String?  @db.Text
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
