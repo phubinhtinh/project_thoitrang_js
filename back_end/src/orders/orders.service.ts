@@ -213,30 +213,58 @@ export class OrdersService {
    * Tìm nội dung CK dạng "THANHTOAN DH<id>" → cập nhật paymentStatus = 'paid'.
    */
   async handleCassoWebhook(payload: any) {
+    console.log('🔔 [Casso Webhook] Payload đầy đủ:', JSON.stringify(payload, null, 2));
+
     const transactions = payload?.data;
     if (!Array.isArray(transactions) || transactions.length === 0) {
+      console.log('⚠️ [Casso Webhook] Không tìm thấy mảng data hoặc data rỗng');
+      console.log('⚠️ [Casso Webhook] Các key trong payload:', Object.keys(payload || {}));
       return { message: 'Không có giao dịch nào' };
     }
 
+    console.log(`📦 [Casso Webhook] Nhận được ${transactions.length} giao dịch`);
     let matched = 0;
 
     for (const tx of transactions) {
-      // Chỉ xử lý giao dịch tiền VÀO
-      if (tx.transferType !== 'in') continue;
+      console.log(`📝 [Casso Webhook] Giao dịch:`, JSON.stringify(tx));
+
+      // Casso webhook thường chỉ gửi giao dịch tiền VÀO, 
+      // nhưng nếu có field transferType và không phải 'in' → bỏ qua giao dịch tiền ra
+      const transferType = (tx.transferType || '').toLowerCase();
+      if (transferType && transferType === 'out') {
+        console.log(`⏭️ [Casso Webhook] Bỏ qua giao dịch tiền RA (transferType=${tx.transferType})`);
+        continue;
+      }
 
       const desc = (tx.description || '').toUpperCase().replace(/\s+/g, '');
+      console.log(`🔍 [Casso Webhook] Nội dung CK sau xử lý: "${desc}"`);
+
       // Tìm pattern THANHTOAN DH<số> hoặc THANHTOANDH<số>
       const match = desc.match(/THANHTOANDH(\d+)/);
-      if (!match) continue;
+      if (!match) {
+        console.log(`❌ [Casso Webhook] Không khớp pattern THANHTOANDH<số>`);
+        continue;
+      }
 
       const orderId = parseInt(match[1], 10);
       if (isNaN(orderId)) continue;
 
+      console.log(`🎯 [Casso Webhook] Tìm thấy mã đơn hàng #${orderId}`);
+
       // Tìm đơn hàng
       const order = await this.prisma.order.findUnique({ where: { id: orderId } });
-      if (!order) continue;
-      if (order.paymentMethod !== 'banking') continue;
-      if (order.paymentStatus === 'paid') continue;
+      if (!order) {
+        console.log(`❌ [Casso Webhook] Không tìm thấy đơn hàng #${orderId} trong DB`);
+        continue;
+      }
+      if (order.paymentMethod !== 'banking') {
+        console.log(`⏭️ [Casso Webhook] Đơn #${orderId} không phải banking (paymentMethod=${order.paymentMethod})`);
+        continue;
+      }
+      if (order.paymentStatus === 'paid') {
+        console.log(`⏭️ [Casso Webhook] Đơn #${orderId} đã thanh toán rồi, bỏ qua`);
+        continue;
+      }
 
       // Cập nhật trạng thái thanh toán
       await this.prisma.order.update({
@@ -245,9 +273,10 @@ export class OrdersService {
       });
 
       matched++;
-      console.log(`✅ Casso Webhook: Đơn hàng #${orderId} đã được xác nhận thanh toán (${tx.amount} VND)`);
+      console.log(`✅ [Casso Webhook] Đơn hàng #${orderId} ĐÃ XÁC NHẬN thanh toán (${tx.amount} VND)`);
     }
 
+    console.log(`📊 [Casso Webhook] Kết quả: ${matched}/${transactions.length} giao dịch được xử lý`);
     return { message: `Đã xử lý ${matched} giao dịch` };
   }
 
