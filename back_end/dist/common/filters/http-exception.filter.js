@@ -60,10 +60,16 @@ let HttpExceptionFilter = class HttpExceptionFilter {
         }
         else {
             const exceptionString = exception?.toString() || '';
+            const exceptionCode = exception?.code;
             if (exceptionString.includes('PrismaClientInitializationError') || exceptionString.includes('Can\'t reach database server')) {
                 status = common_1.HttpStatus.SERVICE_UNAVAILABLE;
                 message = 'Lỗi kết nối Cơ sở dữ liệu, vui lòng kiểm tra lại server DB';
                 error = 'Database Connection Error';
+            }
+            else if (exceptionCode === 'P2003') {
+                status = common_1.HttpStatus.BAD_REQUEST;
+                message = 'Không thể xóa vì dữ liệu này đang được sử dụng (VD: Sản phẩm đã có trong Đơn hàng)';
+                error = 'Foreign Key Constraint Failed';
             }
             else if (exceptionString.includes('PrismaClientKnownRequestError')) {
                 message = 'Lỗi truy vấn dữ liệu (Prisma Error)';

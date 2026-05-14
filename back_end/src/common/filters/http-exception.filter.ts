@@ -69,13 +69,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else {
       // Xử lý lỗi Prisma hoặc lỗi code không thuộc HttpException
       const exceptionString = exception?.toString() || '';
-      
+      const exceptionCode = exception?.code; // Mã lỗi Prisma
+
       if (exceptionString.includes('PrismaClientInitializationError') || exceptionString.includes('Can\'t reach database server')) {
         status = HttpStatus.SERVICE_UNAVAILABLE;
         message = 'Lỗi kết nối Cơ sở dữ liệu, vui lòng kiểm tra lại server DB';
         error = 'Database Connection Error';
+      } else if (exceptionCode === 'P2003') {
+        status = HttpStatus.BAD_REQUEST;
+        message = 'Không thể xóa vì dữ liệu này đang được sử dụng (VD: Sản phẩm đã có trong Đơn hàng)';
+        error = 'Foreign Key Constraint Failed';
       } else if (exceptionString.includes('PrismaClientKnownRequestError')) {
-          message = 'Lỗi truy vấn dữ liệu (Prisma Error)';
+        message = 'Lỗi truy vấn dữ liệu (Prisma Error)';
       }
     }
 
