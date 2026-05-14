@@ -64,7 +64,9 @@ export default function SearchResultsPage() {
           <div className="text-center py-20"><span className="material-symbols-outlined text-5xl text-outline-variant mb-4 block">search</span><p className="font-body text-lg text-secondary">Nhập từ khóa để tìm kiếm</p></div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16">
-            {products.map((p) => (
+            {products.map((p) => {
+              console.log('Search Result Product:', p);
+              return (
               <Link key={p.id} to={`/products/${p.id}`} className="group cursor-pointer">
                 <div className="relative aspect-[3/4] bg-surface-variant overflow-hidden mb-5">
                   {p.colors?.[0]?.img ? <img src={p.colors[0].img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/> : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-4xl text-outline-variant">image</span></div>}
@@ -74,7 +76,8 @@ export default function SearchResultsPage() {
                   <span className="font-body text-sm text-on-surface ml-4">{p.discountPrice ? fmt(p.discountPrice) : fmt(p.basePrice)}</span>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
