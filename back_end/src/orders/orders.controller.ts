@@ -19,14 +19,24 @@ export class OrdersController {
    */
   @SkipThrottle()
   @Post('webhook/casso')
-  async cassoWebhook(@Body() body: any, @Headers('Authorization') authHeader: string) {
-    // Xác thực: Casso gửi header "Authorization: Apikey <key>"
+  async cassoWebhook(
+    @Body() body: any, 
+    @Headers('authorization') authHeader: string,
+    @Headers('secure-token') secureTokenHeader: string,
+  ) {
+    this.logger.log(`📥 Casso webhook headers - auth: ${authHeader}, secure-token: ${secureTokenHeader}`);
+    
+    // Xác thực: Casso gửi header "Authorization: Apikey <key>" HOẶC "secure-token: <key>"
     const expectedKey = process.env.CASSO_API_KEY;
     if (expectedKey) {
-      const token = (authHeader || '').replace(/^Apikey\s+/i, '').trim();
+      let token = (authHeader || '').replace(/^Apikey\s+/i, '').trim();
+      if (!token) {
+        token = (secureTokenHeader || '').trim();
+      }
+      
       if (token !== expectedKey) {
-        this.logger.warn('⚠️ Casso webhook: API Key không hợp lệ');
-        throw new UnauthorizedException('API Key không hợp lệ');
+        this.logger.warn(`⚠️ Casso webhook: API Key không hợp lệ. Token nhận: '${token}'`);
+        throw new UnauthorizedException('API Key không hợp lệ (Casso Token mismatch)');
       }
     }
 
