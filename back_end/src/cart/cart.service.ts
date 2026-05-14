@@ -48,9 +48,15 @@ export class CartService {
     });
 
     if (existingItem) {
+      const newQuantity = existingItem.quantity + (dto.quantity || 1);
+      if (newQuantity > variant.stockQuantity) {
+        throw new BadRequestException(
+          `Tổng số lượng trong giỏ (${newQuantity}) vượt quá tồn kho (${variant.stockQuantity})`,
+        );
+      }
       return this.prisma.cartItem.update({
         where: { id: existingItem.id },
-        data: { quantity: existingItem.quantity + (dto.quantity || 1) },
+        data: { quantity: newQuantity },
       });
     }
 
@@ -66,8 +72,18 @@ export class CartService {
   async updateItem(id: number, userId: number, dto: UpdateCartDto) {
     const item = await this.prisma.cartItem.findFirst({
       where: { id, userId },
+      include: { variant: true },
     });
     if (!item) throw new NotFoundException('Không tìm thấy sản phẩm trong giỏ hàng');
+
+    if (dto.quantity > item.variant.stockQuantity) {
+      throw new BadRequestException(
+        `Số lượng yêu cầu (${dto.quantity}) vượt quá tồn kho (${item.variant.stockQuantity})`,
+      );
+    }
+    if (dto.quantity <= 0) {
+      throw new BadRequestException('Số lượng phải lớn hơn 0');
+    }
 
     return this.prisma.cartItem.update({
       where: { id },

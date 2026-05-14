@@ -43,10 +43,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       switch (status) {
         case HttpStatus.BAD_REQUEST:
-          message = 'Dữ liệu không hợp lệ hoặc thiếu thông tin';
-          // Nếu có lỗi validation chi tiết thì lấy lỗi đó
           if (Array.isArray(defaultMessage)) {
              message = defaultMessage.join(', ');
+          } else if (typeof defaultMessage === 'string') {
+             message = defaultMessage;
+          } else {
+             message = 'Dữ liệu không hợp lệ hoặc thiếu thông tin';
           }
           break;
         case HttpStatus.UNAUTHORIZED:

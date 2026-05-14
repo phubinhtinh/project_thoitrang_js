@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto, UpdateOrderStatusDto, UpdatePaymentStatusDto } from './dto/order.dto';
 
@@ -40,6 +40,18 @@ export class OrdersService {
 
     // Transaction: Tạo đơn + Chi tiết + Trừ kho + Xóa giỏ
     const order = await this.prisma.$transaction(async (tx) => {
+      // 0. Kiểm tra kho BÊN TRONG transaction để tránh race condition
+      for (const item of cartItems) {
+        const freshVariant = await tx.productVariant.findUnique({
+          where: { id: item.productVariantId },
+        });
+        if (!freshVariant || freshVariant.stockQuantity < item.quantity) {
+          throw new BadRequestException(
+            `Sản phẩm "${item.variant.sku}" không đủ hàng trong kho`,
+          );
+        }
+      }
+
       // 1. Tạo đơn hàng gốc
       const newOrder = await tx.order.create({
         data: {
@@ -104,7 +116,7 @@ export class OrdersService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, userId?: number, userRole?: string) {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
@@ -121,11 +133,37 @@ export class OrdersService {
       },
     });
     if (!order) throw new NotFoundException('Đơn hàng không tồn tại');
+
+    if (userRole && userRole !== 'admin' && order.userId !== userId) {
+      throw new ForbiddenException('Bạn không có quyền xem đơn hàng này');
+    }
+
     return order;
   }
 
   async updateStatus(id: number, dto: UpdateOrderStatusDto) {
-    await this.findOne(id);
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+    if (!order) throw new NotFoundException('Đơn hàng không tồn tại');
+
+    if (dto.status === 'cancelled' && order.status !== 'cancelled') {
+      await this.prisma.$transaction(async (tx) => {
+        for (const item of order.items) {
+          await tx.productVariant.update({
+            where: { id: item.productVariantId },
+            data: { stockQuantity: { increment: item.quantity } },
+          });
+        }
+        await tx.order.update({
+          where: { id },
+          data: { status: 'cancelled' },
+        });
+      });
+      return { message: 'Đã hủy đơn hàng và hoàn kho' };
+    }
+
     return this.prisma.order.update({
       where: { id },
       data: { status: dto.status as any },
@@ -144,11 +182,8 @@ export class OrdersService {
    * User tự xác nhận đã chuyển khoản (chỉ dùng cho payment_method='banking').
    * Chỉ chủ đơn hàng mới được phép gọi. Demo mode: tự mark `paid`.
    */
-  async confirmBankingPayment(orderId: number, userId: number) {
+  async confirmBankingPayment(orderId: number) {
     const order = await this.findOne(orderId);
-    if (order.userId !== userId) {
-      throw new BadRequestException('Bạn không có quyền xác nhận đơn hàng này');
-    }
     if (order.paymentMethod !== 'banking') {
       throw new BadRequestException('Đơn hàng này không phải hình thức chuyển khoản');
     }

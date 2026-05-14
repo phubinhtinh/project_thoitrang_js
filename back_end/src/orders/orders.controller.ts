@@ -24,8 +24,8 @@ export class OrdersController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.ordersService.findOne(id);
+  findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    return this.ordersService.findOne(id, req.user.userId, req.user.role);
   }
 
   @Roles(Role.admin)
@@ -40,8 +40,9 @@ export class OrdersController {
     return this.ordersService.updatePaymentStatus(id, dto);
   }
 
+  @Roles(Role.admin)
   @Post(':id/confirm-banking')
-  confirmBanking(@Param('id', ParseIntPipe) id: number, @Request() req) {
-    return this.ordersService.confirmBankingPayment(id, req.user.userId);
+  confirmBanking(@Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.confirmBankingPayment(id);
   }
 }

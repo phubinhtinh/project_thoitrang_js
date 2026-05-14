@@ -102,7 +102,14 @@ export class ProductsService {
     await this.findOne(id);
     return this.prisma.product.update({
       where: { id },
-      data: dto as any,
+      data: {
+        categoryId: dto.categoryId,
+        name: dto.name,
+        description: dto.description,
+        basePrice: dto.basePrice,
+        discountPrice: dto.discountPrice,
+      },
+      include: { variants: true, category: { select: { id: true, name: true } } },
     });
   }
 

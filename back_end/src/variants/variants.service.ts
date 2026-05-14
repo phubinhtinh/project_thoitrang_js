@@ -13,6 +13,9 @@ export class VariantsService {
   }
 
   async create(productId: number, dto: CreateVariantDto) {
+    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+    if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
+
     return this.prisma.productVariant.create({
       data: {
         productId,
