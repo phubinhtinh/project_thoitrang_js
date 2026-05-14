@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Put, Body, Param, ParseIntPipe, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, ParseIntPipe, UseGuards, Request, Headers, UnauthorizedException, Logger } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { OrdersService } from './orders.service';
 import { CheckoutDto, UpdateOrderStatusDto, UpdatePaymentStatusDto } from './dto/order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -6,40 +7,75 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '@prisma/client';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('orders')
 export class OrdersController {
+  private readonly logger = new Logger(OrdersController.name);
+
   constructor(private ordersService: OrdersService) {}
 
+  /**
+   * Webhook Casso — PUBLIC (không cần JWT).
+   * Casso gửi POST khi có giao dịch mới vào tài khoản ngân hàng.
+   */
+  @SkipThrottle()
+  @Post('webhook/casso')
+  async cassoWebhook(@Body() body: any, @Headers('Authorization') authHeader: string) {
+    // Xác thực: Casso gửi header "Authorization: Apikey <key>"
+    const expectedKey = process.env.CASSO_API_KEY;
+    if (expectedKey) {
+      const token = (authHeader || '').replace(/^Apikey\s+/i, '').trim();
+      if (token !== expectedKey) {
+        this.logger.warn('⚠️ Casso webhook: API Key không hợp lệ');
+        throw new UnauthorizedException('API Key không hợp lệ');
+      }
+    }
+
+    this.logger.log('📥 Casso webhook received: ' + JSON.stringify(body).substring(0, 200));
+    return this.ordersService.handleCassoWebhook(body);
+  }
+
+  // === Các endpoint cần đăng nhập ===
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('checkout')
   checkout(@Request() req, @Body() dto: CheckoutDto) {
     return this.ordersService.checkout(req.user.userId, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll(@Request() req) {
-    // Admin xem tất cả đơn hàng, user chỉ xem đơn của mình
     const userId = req.user.role === 'admin' ? null : req.user.userId;
     return this.ordersService.findAll(userId);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get(':id/payment-status')
+  getPaymentStatus(@Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.getPaymentStatus(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
     return this.ordersService.findOne(id, req.user.userId, req.user.role);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.admin)
   @Put(':id/status')
   updateStatus(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.admin)
   @Put(':id/payment')
   updatePaymentStatus(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePaymentStatusDto) {
     return this.ordersService.updatePaymentStatus(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.admin)
   @Post(':id/confirm-banking')
   confirmBanking(@Param('id', ParseIntPipe) id: number) {

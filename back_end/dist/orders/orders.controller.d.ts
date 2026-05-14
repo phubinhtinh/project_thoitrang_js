@@ -2,7 +2,11 @@ import { OrdersService } from './orders.service';
 import { CheckoutDto, UpdateOrderStatusDto, UpdatePaymentStatusDto } from './dto/order.dto';
 export declare class OrdersController {
     private ordersService;
+    private readonly logger;
     constructor(ordersService: OrdersService);
+    cassoWebhook(body: any, authHeader: string): Promise<{
+        message: string;
+    }>;
     checkout(req: any, dto: CheckoutDto): Promise<{
         message: string;
         order: {
@@ -63,6 +67,11 @@ export declare class OrdersController {
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
         totalPrice: import("@prisma/client/runtime/library").Decimal;
     })[]>;
+    getPaymentStatus(id: number): Promise<{
+        id: number;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+    }>;
     findOne(id: number, req: any): Promise<{
         user: {
             fullName: string;

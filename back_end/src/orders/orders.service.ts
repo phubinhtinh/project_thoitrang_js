@@ -207,4 +207,59 @@ export class OrdersService {
       data: { paymentStatus: 'paid' },
     });
   }
+
+  /**
+   * Xử lý webhook từ Casso khi có giao dịch mới.
+   * Tìm nội dung CK dạng "THANHTOAN DH<id>" → cập nhật paymentStatus = 'paid'.
+   */
+  async handleCassoWebhook(payload: any) {
+    const transactions = payload?.data;
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return { message: 'Không có giao dịch nào' };
+    }
+
+    let matched = 0;
+
+    for (const tx of transactions) {
+      // Chỉ xử lý giao dịch tiền VÀO
+      if (tx.transferType !== 'in') continue;
+
+      const desc = (tx.description || '').toUpperCase().replace(/\s+/g, '');
+      // Tìm pattern THANHTOAN DH<số> hoặc THANHTOANDH<số>
+      const match = desc.match(/THANHTOANDH(\d+)/);
+      if (!match) continue;
+
+      const orderId = parseInt(match[1], 10);
+      if (isNaN(orderId)) continue;
+
+      // Tìm đơn hàng
+      const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+      if (!order) continue;
+      if (order.paymentMethod !== 'banking') continue;
+      if (order.paymentStatus === 'paid') continue;
+
+      // Cập nhật trạng thái thanh toán
+      await this.prisma.order.update({
+        where: { id: orderId },
+        data: { paymentStatus: 'paid' },
+      });
+
+      matched++;
+      console.log(`✅ Casso Webhook: Đơn hàng #${orderId} đã được xác nhận thanh toán (${tx.amount} VND)`);
+    }
+
+    return { message: `Đã xử lý ${matched} giao dịch` };
+  }
+
+  /**
+   * Trả về trạng thái thanh toán của đơn hàng (dùng cho frontend polling).
+   */
+  async getPaymentStatus(orderId: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      select: { id: true, paymentStatus: true, paymentMethod: true },
+    });
+    if (!order) throw new NotFoundException('Đơn hàng không tồn tại');
+    return order;
+  }
 }

@@ -146,4 +146,12 @@ export declare class OrdersService {
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
         totalPrice: import("@prisma/client/runtime/library").Decimal;
     }>;
+    handleCassoWebhook(payload: any): Promise<{
+        message: string;
+    }>;
+    getPaymentStatus(orderId: number): Promise<{
+        id: number;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+    }>;
 }

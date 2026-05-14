@@ -183,6 +183,47 @@ let OrdersService = class OrdersService {
             data: { paymentStatus: 'paid' },
         });
     }
+    async handleCassoWebhook(payload) {
+        const transactions = payload?.data;
+        if (!Array.isArray(transactions) || transactions.length === 0) {
+            return { message: 'Không có giao dịch nào' };
+        }
+        let matched = 0;
+        for (const tx of transactions) {
+            if (tx.transferType !== 'in')
+                continue;
+            const desc = (tx.description || '').toUpperCase().replace(/\s+/g, '');
+            const match = desc.match(/THANHTOANDH(\d+)/);
+            if (!match)
+                continue;
+            const orderId = parseInt(match[1], 10);
+            if (isNaN(orderId))
+                continue;
+            const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+            if (!order)
+                continue;
+            if (order.paymentMethod !== 'banking')
+                continue;
+            if (order.paymentStatus === 'paid')
+                continue;
+            await this.prisma.order.update({
+                where: { id: orderId },
+                data: { paymentStatus: 'paid' },
+            });
+            matched++;
+            console.log(`✅ Casso Webhook: Đơn hàng #${orderId} đã được xác nhận thanh toán (${tx.amount} VND)`);
+        }
+        return { message: `Đã xử lý ${matched} giao dịch` };
+    }
+    async getPaymentStatus(orderId) {
+        const order = await this.prisma.order.findUnique({
+            where: { id: orderId },
+            select: { id: true, paymentStatus: true, paymentMethod: true },
+        });
+        if (!order)
+            throw new common_1.NotFoundException('Đơn hàng không tồn tại');
+        return order;
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([

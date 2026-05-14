@@ -96,6 +96,7 @@ export const ordersAPI = {
   updateStatus: (id, data) => API.put(`/orders/${id}/status`, data),
   updatePayment: (id, data) => API.put(`/orders/${id}/payment`, data),
   confirmBanking: (id) => API.post(`/orders/${id}/confirm-banking`),
+  getPaymentStatus: (id) => API.get(`/orders/${id}/payment-status`),
 };
 
 // Reviews APIs
