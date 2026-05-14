@@ -36,7 +36,7 @@ export class OrdersController {
       
       if (token !== expectedKey) {
         this.logger.warn(`⚠️ Casso webhook: API Key không hợp lệ. Token nhận: '${token}'`);
-        throw new UnauthorizedException('API Key không hợp lệ (Casso Token mismatch)');
+        throw new UnauthorizedException(`API Key không hợp lệ (Casso Token mismatch). Token nhận từ Casso: '${token}', Token mong đợi: '${expectedKey}'`);
       }
     }
 
