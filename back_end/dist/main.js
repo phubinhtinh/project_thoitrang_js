@@ -21,8 +21,21 @@ async function bootstrap() {
         transformOptions: { enableImplicitConversion: true },
     }));
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
+    const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:4173',
+        process.env.FRONTEND_URL,
+    ].filter(Boolean);
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+        origin: (origin, callback) => {
+            if (!origin)
+                return callback(null, true);
+            if (allowedOrigins.includes(origin) ||
+                origin.endsWith('.onrender.com')) {
+                return callback(null, true);
+            }
+            callback(new Error('Not allowed by CORS'));
+        },
         credentials: true,
     });
     await app.listen(3000);

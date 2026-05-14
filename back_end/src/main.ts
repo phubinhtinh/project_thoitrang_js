@@ -33,8 +33,25 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Cho phép FrontEnd gọi API (CORS)
+  // Hỗ trợ cả localhost (dev) và domain Render (production)
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    process.env.FRONTEND_URL,
+  ].filter(Boolean) as string[];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Cho phép requests không có origin (Postman, mobile, server-to-server)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.onrender.com')
+      ) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   });
 
