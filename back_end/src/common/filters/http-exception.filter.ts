@@ -52,7 +52,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
           }
           break;
         case HttpStatus.UNAUTHORIZED:
-          message = 'Vui lòng đăng nhập để thực hiện thao tác này';
+          if (typeof defaultMessage === 'string' && defaultMessage.includes('Casso Token')) {
+             message = defaultMessage;
+          } else {
+             message = 'Vui lòng đăng nhập để thực hiện thao tác này';
+          }
           break;
         case HttpStatus.FORBIDDEN:
           message = 'Bạn không có quyền truy cập tính năng này';
