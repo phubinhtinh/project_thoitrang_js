@@ -27,7 +27,7 @@ export class OrdersController {
     this.logger.log(`📥 Casso webhook headers - auth: ${authHeader}, secure-token: ${secureTokenHeader}`);
     
     // Xác thực: Casso gửi header "Authorization: Apikey <key>" HOẶC "secure-token: <key>"
-    const expectedKey = process.env.CASSO_API_KEY;
+    const expectedKey = process.env.CASSO_WEBHOOK_KEY;
     if (expectedKey) {
       let token = (authHeader || '').replace(/^Apikey\s+/i, '').trim();
       if (!token) {
