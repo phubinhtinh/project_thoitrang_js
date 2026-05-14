@@ -11,14 +11,11 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class ProductVariantInlineDto {
+// Size/Variant bên trong một Color
+export class VariantSizeDto {
   @IsString()
   @IsNotEmpty()
   size: string;
-
-  @IsString()
-  @IsNotEmpty()
-  color: string;
 
   @IsInt()
   @Min(0)
@@ -28,10 +25,23 @@ export class ProductVariantInlineDto {
   @IsString()
   @IsNotEmpty()
   sku: string;
+}
+
+// Color chứa nhiều sizes
+export class ProductColorInlineDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string; // Tên màu: "Xanh Navy", "Đen"...
 
   @IsString()
   @IsOptional()
-  img?: string;
+  img?: string; // Ảnh của màu
+
+  @IsArray()
+  @ArrayMinSize(1, { message: 'Mỗi màu phải có ít nhất 1 size' })
+  @ValidateNested({ each: true })
+  @Type(() => VariantSizeDto)
+  variants: VariantSizeDto[];
 }
 
 export class CreateProductDto {
@@ -57,10 +67,10 @@ export class CreateProductDto {
   discountPrice?: number;
 
   @IsArray()
-  @ArrayMinSize(1, { message: 'Sản phẩm phải có ít nhất 1 biến thể' })
+  @ArrayMinSize(1, { message: 'Sản phẩm phải có ít nhất 1 màu' })
   @ValidateNested({ each: true })
-  @Type(() => ProductVariantInlineDto)
-  variants: ProductVariantInlineDto[];
+  @Type(() => ProductColorInlineDto)
+  colors: ProductColorInlineDto[];
 }
 
 export class UpdateProductDto {

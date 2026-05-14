@@ -1,14 +1,12 @@
-import { IsNotEmpty, IsOptional, IsString, IsInt } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsInt, IsArray, ArrayMinSize, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+
+// ===== Variant (Size) DTOs =====
 
 export class CreateVariantDto {
   @IsString()
   @IsNotEmpty()
   size: string;
-
-  @IsString()
-  @IsNotEmpty()
-  color: string;
 
   @IsInt()
   @Type(() => Number)
@@ -17,20 +15,12 @@ export class CreateVariantDto {
   @IsString()
   @IsNotEmpty()
   sku: string;
-
-  @IsString()
-  @IsOptional()
-  img?: string;
 }
 
 export class UpdateVariantDto {
   @IsString()
   @IsOptional()
   size?: string;
-
-  @IsString()
-  @IsOptional()
-  color?: string;
 
   @IsInt()
   @IsOptional()
@@ -40,6 +30,30 @@ export class UpdateVariantDto {
   @IsString()
   @IsOptional()
   sku?: string;
+}
+
+// ===== Color DTOs =====
+
+export class CreateColorDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  img?: string;
+
+  @IsArray()
+  @ArrayMinSize(1, { message: 'Mỗi màu phải có ít nhất 1 size' })
+  @ValidateNested({ each: true })
+  @Type(() => CreateVariantDto)
+  variants: CreateVariantDto[];
+}
+
+export class UpdateColorDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
 
   @IsString()
   @IsOptional()

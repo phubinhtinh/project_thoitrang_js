@@ -13,6 +13,27 @@ exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const categories_service_1 = require("../categories/categories.service");
+const PRODUCT_INCLUDE = {
+    category: { select: { id: true, name: true } },
+    colors: {
+        include: { variants: true },
+        orderBy: { id: 'asc' },
+    },
+    reviews: false,
+};
+const PRODUCT_DETAIL_INCLUDE = {
+    category: { select: { id: true, name: true } },
+    colors: {
+        include: { variants: true },
+        orderBy: { id: 'asc' },
+    },
+    reviews: {
+        include: {
+            user: { select: { id: true, fullName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+    },
+};
 let ProductsService = class ProductsService {
     prisma;
     categoriesService;
@@ -38,10 +59,7 @@ let ProductsService = class ProductsService {
                 where,
                 skip,
                 take: limit,
-                include: {
-                    category: { select: { id: true, name: true } },
-                    variants: true,
-                },
+                include: PRODUCT_INCLUDE,
                 orderBy: { createdAt: 'desc' },
             }),
             this.prisma.product.count({ where }),
@@ -59,16 +77,7 @@ let ProductsService = class ProductsService {
     async findOne(id) {
         const product = await this.prisma.product.findUnique({
             where: { id },
-            include: {
-                category: { select: { id: true, name: true } },
-                variants: true,
-                reviews: {
-                    include: {
-                        user: { select: { id: true, fullName: true } },
-                    },
-                    orderBy: { createdAt: 'desc' },
-                },
-            },
+            include: PRODUCT_DETAIL_INCLUDE,
         });
         if (!product)
             throw new common_1.NotFoundException('Sản phẩm không tồn tại');
@@ -85,17 +94,21 @@ let ProductsService = class ProductsService {
                 description: dto.description,
                 basePrice: dto.basePrice,
                 discountPrice: dto.discountPrice,
-                variants: {
-                    create: dto.variants.map((v) => ({
-                        size: v.size,
-                        color: v.color,
-                        stockQuantity: v.stockQuantity,
-                        sku: v.sku,
-                        img: v.img,
+                colors: {
+                    create: dto.colors.map((color) => ({
+                        name: color.name,
+                        img: color.img,
+                        variants: {
+                            create: color.variants.map((v) => ({
+                                size: v.size,
+                                stockQuantity: v.stockQuantity,
+                                sku: v.sku,
+                            })),
+                        },
                     })),
                 },
             },
-            include: { variants: true, category: { select: { id: true, name: true } } },
+            include: PRODUCT_INCLUDE,
         });
     }
     async update(id, dto) {
@@ -109,7 +122,7 @@ let ProductsService = class ProductsService {
                 basePrice: dto.basePrice,
                 discountPrice: dto.discountPrice,
             },
-            include: { variants: true, category: { select: { id: true, name: true } } },
+            include: PRODUCT_INCLUDE,
         });
     }
     async remove(id) {

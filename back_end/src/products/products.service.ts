@@ -3,6 +3,30 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CategoriesService } from '../categories/categories.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 
+// Include mặc định: Product → Colors → Variants
+const PRODUCT_INCLUDE = {
+  category: { select: { id: true, name: true } },
+  colors: {
+    include: { variants: true },
+    orderBy: { id: 'asc' as const },
+  },
+  reviews: false as const,
+};
+
+const PRODUCT_DETAIL_INCLUDE = {
+  category: { select: { id: true, name: true } },
+  colors: {
+    include: { variants: true },
+    orderBy: { id: 'asc' as const },
+  },
+  reviews: {
+    include: {
+      user: { select: { id: true, fullName: true } },
+    },
+    orderBy: { createdAt: 'desc' as const },
+  },
+};
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -32,10 +56,7 @@ export class ProductsService {
         where,
         skip,
         take: limit,
-        include: {
-          category: { select: { id: true, name: true } },
-          variants: true,
-        },
+        include: PRODUCT_INCLUDE,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.product.count({ where }),
@@ -55,16 +76,7 @@ export class ProductsService {
   async findOne(id: number) {
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: {
-        category: { select: { id: true, name: true } },
-        variants: true,
-        reviews: {
-          include: {
-            user: { select: { id: true, fullName: true } },
-          },
-          orderBy: { createdAt: 'desc' },
-        },
-      },
+      include: PRODUCT_DETAIL_INCLUDE,
     });
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
@@ -76,7 +88,6 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto) {
-    // Tạo product + variants trong cùng 1 giao dịch
     return this.prisma.product.create({
       data: {
         categoryId: dto.categoryId,
@@ -84,17 +95,21 @@ export class ProductsService {
         description: dto.description,
         basePrice: dto.basePrice,
         discountPrice: dto.discountPrice,
-        variants: {
-          create: dto.variants.map((v) => ({
-            size: v.size,
-            color: v.color,
-            stockQuantity: v.stockQuantity,
-            sku: v.sku,
-            img: v.img,
+        colors: {
+          create: dto.colors.map((color) => ({
+            name: color.name,
+            img: color.img,
+            variants: {
+              create: color.variants.map((v) => ({
+                size: v.size,
+                stockQuantity: v.stockQuantity,
+                sku: v.sku,
+              })),
+            },
           })),
         },
       },
-      include: { variants: true, category: { select: { id: true, name: true } } },
+      include: PRODUCT_INCLUDE,
     });
   }
 
@@ -109,7 +124,7 @@ export class ProductsService {
         basePrice: dto.basePrice,
         discountPrice: dto.discountPrice,
       },
-      include: { variants: true, category: { select: { id: true, name: true } } },
+      include: PRODUCT_INCLUDE,
     });
   }
 

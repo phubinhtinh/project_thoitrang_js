@@ -189,13 +189,13 @@ export default function CheckoutPage() {
           <h2 className="font-headline text-2xl text-primary mb-8">Đơn Hàng</h2>
           <div className="space-y-6 mb-10">
             {cartItems.map(item => {
-              const product = item.variant?.product;
+              const product = item.variant?.color?.product;
               const price = product?.discountPrice || product?.basePrice || 0;
               return (
                 <div key={item.id} className="flex gap-4">
                   <div className="w-20 h-24 bg-surface-variant flex-shrink-0 overflow-hidden">
-                    {item.variant?.img ? (
-                      <img src={item.variant.img} alt={product.name} className="w-full h-full object-cover" />
+                    {item.variant?.color?.img ? (
+                      <img src={item.variant.color.img} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <span className="material-symbols-outlined text-outline-variant">image</span>
@@ -205,7 +205,7 @@ export default function CheckoutPage() {
                   <div className="flex flex-col justify-between py-1 w-full">
                     <div>
                       <h3 className="font-body text-sm font-medium text-on-surface uppercase tracking-wider line-clamp-1">{product?.name}</h3>
-                      <p className="font-body text-xs text-secondary mt-1">{item.variant?.size} | {item.variant?.color}</p>
+                      <p className="font-body text-xs text-secondary mt-1">{item.variant?.size} | {item.variant?.color?.name}</p>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="font-body text-xs text-secondary">SL: {item.quantity}</span>

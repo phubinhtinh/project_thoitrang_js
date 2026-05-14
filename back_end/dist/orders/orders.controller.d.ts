@@ -26,18 +26,23 @@ export declare class OrdersController {
         } | null;
         items: ({
             variant: {
-                product: {
+                color: {
+                    product: {
+                        id: number;
+                        name: string;
+                    };
+                } & {
                     id: number;
                     name: string;
+                    img: string | null;
+                    productId: number;
                 };
             } & {
                 id: number;
                 size: string;
-                color: string;
                 stockQuantity: number;
                 sku: string;
-                img: string | null;
-                productId: number;
+                colorId: number;
             };
         } & {
             id: number;
@@ -66,18 +71,23 @@ export declare class OrdersController {
         } | null;
         items: ({
             variant: {
-                product: {
+                color: {
+                    product: {
+                        id: number;
+                        name: string;
+                    };
+                } & {
                     id: number;
                     name: string;
+                    img: string | null;
+                    productId: number;
                 };
             } & {
                 id: number;
                 size: string;
-                color: string;
                 stockQuantity: number;
                 sku: string;
-                img: string | null;
-                productId: number;
+                colorId: number;
             };
         } & {
             id: number;

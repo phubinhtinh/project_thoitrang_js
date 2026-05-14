@@ -1,9 +1,12 @@
-export declare class ProductVariantInlineDto {
+export declare class VariantSizeDto {
     size: string;
-    color: string;
     stockQuantity: number;
     sku: string;
+}
+export declare class ProductColorInlineDto {
+    name: string;
     img?: string;
+    variants: VariantSizeDto[];
 }
 export declare class CreateProductDto {
     categoryId: number;
@@ -11,7 +14,7 @@ export declare class CreateProductDto {
     description?: string;
     basePrice: number;
     discountPrice?: number;
-    variants: ProductVariantInlineDto[];
+    colors: ProductColorInlineDto[];
 }
 export declare class UpdateProductDto {
     categoryId?: number;

@@ -23,7 +23,11 @@ let OrdersService = class OrdersService {
             include: {
                 variant: {
                     include: {
-                        product: { select: { basePrice: true, discountPrice: true } },
+                        color: {
+                            include: {
+                                product: { select: { basePrice: true, discountPrice: true } },
+                            },
+                        },
                     },
                 },
             },
@@ -33,11 +37,11 @@ let OrdersService = class OrdersService {
         }
         for (const item of cartItems) {
             if (item.variant.stockQuantity < item.quantity) {
-                throw new common_1.BadRequestException(`Sản phẩm "${item.variant.sku}" (${item.variant.color} - ${item.variant.size}) chỉ còn ${item.variant.stockQuantity} sản phẩm trong kho`);
+                throw new common_1.BadRequestException(`Sản phẩm "${item.variant.sku}" (${item.variant.color.name} - ${item.variant.size}) chỉ còn ${item.variant.stockQuantity} sản phẩm trong kho`);
             }
         }
         const totalPrice = cartItems.reduce((sum, item) => {
-            const price = Number(item.variant.product.discountPrice || item.variant.product.basePrice);
+            const price = Number(item.variant.color.product.discountPrice || item.variant.color.product.basePrice);
             return sum + price * item.quantity;
         }, 0);
         const order = await this.prisma.$transaction(async (tx) => {
@@ -61,7 +65,7 @@ let OrdersService = class OrdersService {
                 },
             });
             for (const item of cartItems) {
-                const price = Number(item.variant.product.discountPrice || item.variant.product.basePrice);
+                const price = Number(item.variant.color.product.discountPrice || item.variant.color.product.basePrice);
                 await tx.orderItem.create({
                     data: {
                         orderId: newOrder.id,
@@ -92,7 +96,11 @@ let OrdersService = class OrdersService {
                     include: {
                         variant: {
                             include: {
-                                product: { select: { id: true, name: true } },
+                                color: {
+                                    include: {
+                                        product: { select: { id: true, name: true } },
+                                    },
+                                },
                             },
                         },
                     },
@@ -110,7 +118,11 @@ let OrdersService = class OrdersService {
                     include: {
                         variant: {
                             include: {
-                                product: { select: { id: true, name: true } },
+                                color: {
+                                    include: {
+                                        product: { select: { id: true, name: true } },
+                                    },
+                                },
                             },
                         },
                     },

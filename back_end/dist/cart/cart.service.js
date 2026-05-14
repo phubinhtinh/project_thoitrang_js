@@ -23,15 +23,20 @@ let CartService = class CartService {
             include: {
                 variant: {
                     include: {
-                        product: {
-                            select: { id: true, name: true, basePrice: true, discountPrice: true },
+                        color: {
+                            include: {
+                                product: {
+                                    select: { id: true, name: true, basePrice: true, discountPrice: true },
+                                },
+                            },
                         },
                     },
                 },
             },
         });
         const cartItems = items.map((item) => {
-            const price = item.variant.product.discountPrice || item.variant.product.basePrice;
+            const product = item.variant.color.product;
+            const price = product.discountPrice || product.basePrice;
             return {
                 ...item,
                 itemTotal: Number(price) * item.quantity,

@@ -75,23 +75,33 @@ model Product {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  category Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  variants ProductVariant[]
+  category Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  colors   ProductColor[]
   reviews  Review[]
 
   @@map("products")
 }
 
-model ProductVariant {
-  id            Int     @id @default(autoincrement())
-  productId     Int     @map("product_id")
-  size          String  @db.VarChar(10)
-  color         String  @db.VarChar(50)
-  stockQuantity Int     @default(0) @map("stock_quantity")
-  sku           String  @unique @db.VarChar(50)
-  img           String? @db.Text
+model ProductColor {
+  id        Int     @id @default(autoincrement())
+  productId Int     @map("product_id")
+  name      String  @db.VarChar(50)
+  img       String? @db.Text
 
-  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product  Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variants ProductVariant[]
+
+  @@map("product_colors")
+}
+
+model ProductVariant {
+  id            Int    @id @default(autoincrement())
+  colorId       Int    @map("color_id")
+  size          String @db.VarChar(10)
+  stockQuantity Int    @default(0) @map("stock_quantity")
+  sku           String @unique @db.VarChar(50)
+
+  color      ProductColor @relation(fields: [colorId], references: [id], onDelete: Cascade)
   cartItems  CartItem[]
   orderItems OrderItem[]
 

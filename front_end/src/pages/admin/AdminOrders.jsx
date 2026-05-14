@@ -209,9 +209,9 @@ export default function AdminOrders() {
                             {o.items?.map((it) => (
                               <div key={it.id} className="flex items-center gap-3 text-sm">
                                 <div className="w-10 h-10 bg-surface-variant flex-shrink-0 overflow-hidden">
-                                  {it.variant?.img ? (
+                                  {it.variant?.color?.img ? (
                                     <img
-                                      src={it.variant.img}
+                                      src={it.variant.color.img}
                                       alt=""
                                       className="w-full h-full object-cover"
                                     />
@@ -219,10 +219,10 @@ export default function AdminOrders() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="truncate text-on-surface">
-                                    {it.variant?.product?.name}
+                                    {it.variant?.color?.product?.name}
                                   </p>
                                   <p className="text-[10px] uppercase tracking-wider text-secondary">
-                                    {it.variant?.color} · {it.variant?.size} × {it.quantity}
+                                    {it.variant?.color?.name} · {it.variant?.size} × {it.quantity}
                                   </p>
                                 </div>
                                 <p className="font-label text-xs text-on-surface">

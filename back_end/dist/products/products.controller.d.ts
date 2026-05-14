@@ -14,15 +14,20 @@ export declare class ProductsController {
                 id: number;
                 name: string;
             };
-            variants: {
+            colors: ({
+                variants: {
+                    id: number;
+                    size: string;
+                    stockQuantity: number;
+                    sku: string;
+                    colorId: number;
+                }[];
+            } & {
                 id: number;
-                size: string;
-                color: string;
-                stockQuantity: number;
-                sku: string;
+                name: string;
                 img: string | null;
                 productId: number;
-            }[];
+            })[];
         } & {
             id: number;
             createdAt: Date;
@@ -59,15 +64,20 @@ export declare class ProductsController {
             rating: number;
             comment: string | null;
         })[];
-        variants: {
+        colors: ({
+            variants: {
+                id: number;
+                size: string;
+                stockQuantity: number;
+                sku: string;
+                colorId: number;
+            }[];
+        } & {
             id: number;
-            size: string;
-            color: string;
-            stockQuantity: number;
-            sku: string;
+            name: string;
             img: string | null;
             productId: number;
-        }[];
+        })[];
         id: number;
         createdAt: Date;
         updatedAt: Date;
@@ -82,15 +92,20 @@ export declare class ProductsController {
             id: number;
             name: string;
         };
-        variants: {
+        colors: ({
+            variants: {
+                id: number;
+                size: string;
+                stockQuantity: number;
+                sku: string;
+                colorId: number;
+            }[];
+        } & {
             id: number;
-            size: string;
-            color: string;
-            stockQuantity: number;
-            sku: string;
+            name: string;
             img: string | null;
             productId: number;
-        }[];
+        })[];
     } & {
         id: number;
         createdAt: Date;
@@ -106,15 +121,20 @@ export declare class ProductsController {
             id: number;
             name: string;
         };
-        variants: {
+        colors: ({
+            variants: {
+                id: number;
+                size: string;
+                stockQuantity: number;
+                sku: string;
+                colorId: number;
+            }[];
+        } & {
             id: number;
-            size: string;
-            color: string;
-            stockQuantity: number;
-            sku: string;
+            name: string;
             img: string | null;
             productId: number;
-        }[];
+        })[];
     } & {
         id: number;
         createdAt: Date;

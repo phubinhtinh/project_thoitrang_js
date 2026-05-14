@@ -42,7 +42,9 @@ let ReviewsService = class ReviewsService {
                 items: {
                     some: {
                         variant: {
-                            productId,
+                            color: {
+                                productId,
+                            },
                         },
                     },
                 },

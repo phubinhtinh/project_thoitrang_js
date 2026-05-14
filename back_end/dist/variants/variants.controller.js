@@ -25,37 +25,75 @@ let VariantsController = class VariantsController {
     constructor(variantsService) {
         this.variantsService = variantsService;
     }
-    findByProduct(productId) {
-        return this.variantsService.findByProduct(productId);
+    findColorsByProduct(productId) {
+        return this.variantsService.findColorsByProduct(productId);
     }
-    create(productId, dto) {
-        return this.variantsService.create(productId, dto);
+    createColor(productId, dto) {
+        return this.variantsService.createColor(productId, dto);
     }
-    update(id, dto) {
-        return this.variantsService.update(id, dto);
+    updateColor(id, dto) {
+        return this.variantsService.updateColor(id, dto);
     }
-    remove(id) {
-        return this.variantsService.remove(id);
+    removeColor(id) {
+        return this.variantsService.removeColor(id);
+    }
+    createVariant(colorId, dto) {
+        return this.variantsService.createVariant(colorId, dto);
+    }
+    updateVariant(id, dto) {
+        return this.variantsService.updateVariant(id, dto);
+    }
+    removeVariant(id) {
+        return this.variantsService.removeVariant(id);
     }
 };
 exports.VariantsController = VariantsController;
 __decorate([
-    (0, common_1.Get)('products/:productId/variants'),
+    (0, common_1.Get)('products/:productId/colors'),
     __param(0, (0, common_1.Param)('productId', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
-], VariantsController.prototype, "findByProduct", null);
+], VariantsController.prototype, "findColorsByProduct", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.admin),
-    (0, common_1.Post)('products/:productId/variants'),
+    (0, common_1.Post)('products/:productId/colors'),
     __param(0, (0, common_1.Param)('productId', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, variant_dto_1.CreateColorDto]),
+    __metadata("design:returntype", void 0)
+], VariantsController.prototype, "createColor", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.admin),
+    (0, common_1.Put)('colors/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, variant_dto_1.UpdateColorDto]),
+    __metadata("design:returntype", void 0)
+], VariantsController.prototype, "updateColor", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.admin),
+    (0, common_1.Delete)('colors/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], VariantsController.prototype, "removeColor", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.admin),
+    (0, common_1.Post)('colors/:colorId/variants'),
+    __param(0, (0, common_1.Param)('colorId', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, variant_dto_1.CreateVariantDto]),
     __metadata("design:returntype", void 0)
-], VariantsController.prototype, "create", null);
+], VariantsController.prototype, "createVariant", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.admin),
@@ -65,7 +103,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, variant_dto_1.UpdateVariantDto]),
     __metadata("design:returntype", void 0)
-], VariantsController.prototype, "update", null);
+], VariantsController.prototype, "updateVariant", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.admin),
@@ -74,7 +112,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
-], VariantsController.prototype, "remove", null);
+], VariantsController.prototype, "removeVariant", null);
 exports.VariantsController = VariantsController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [variants_service_1.VariantsService])

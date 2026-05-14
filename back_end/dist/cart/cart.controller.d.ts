@@ -7,20 +7,25 @@ export declare class CartController {
         items: {
             itemTotal: number;
             variant: {
-                product: {
+                color: {
+                    product: {
+                        id: number;
+                        name: string;
+                        basePrice: import("@prisma/client/runtime/library").Decimal;
+                        discountPrice: import("@prisma/client/runtime/library").Decimal | null;
+                    };
+                } & {
                     id: number;
                     name: string;
-                    basePrice: import("@prisma/client/runtime/library").Decimal;
-                    discountPrice: import("@prisma/client/runtime/library").Decimal | null;
+                    img: string | null;
+                    productId: number;
                 };
             } & {
                 id: number;
                 size: string;
-                color: string;
                 stockQuantity: number;
                 sku: string;
-                img: string | null;
-                productId: number;
+                colorId: number;
             };
             id: number;
             createdAt: Date;

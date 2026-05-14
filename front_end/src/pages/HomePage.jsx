@@ -224,9 +224,9 @@ export default function HomePage() {
                 className={`group cursor-pointer animate-fade-in stagger-${Math.min(idx + 1, 6)}`}
               >
                 <div className="relative aspect-[3/4] bg-surface-container overflow-hidden mb-5">
-                  {product.variants?.[0]?.img ? (
+                  {product.colors?.[0]?.img ? (
                     <img
-                      src={product.variants[0].img}
+                      src={product.colors[0].img}
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />

@@ -1,42 +1,75 @@
 import { VariantsService } from './variants.service';
-import { CreateVariantDto, UpdateVariantDto } from './dto/variant.dto';
+import { CreateVariantDto, UpdateVariantDto, CreateColorDto, UpdateColorDto } from './dto/variant.dto';
 export declare class VariantsController {
     private variantsService;
     constructor(variantsService: VariantsService);
-    findByProduct(productId: number): Promise<{
+    findColorsByProduct(productId: number): Promise<({
+        variants: {
+            id: number;
+            size: string;
+            stockQuantity: number;
+            sku: string;
+            colorId: number;
+        }[];
+    } & {
         id: number;
-        size: string;
-        color: string;
-        stockQuantity: number;
-        sku: string;
+        name: string;
         img: string | null;
         productId: number;
-    }[]>;
-    create(productId: number, dto: CreateVariantDto): Promise<{
+    })[]>;
+    createColor(productId: number, dto: CreateColorDto): Promise<{
+        variants: {
+            id: number;
+            size: string;
+            stockQuantity: number;
+            sku: string;
+            colorId: number;
+        }[];
+    } & {
         id: number;
-        size: string;
-        color: string;
-        stockQuantity: number;
-        sku: string;
+        name: string;
         img: string | null;
         productId: number;
     }>;
-    update(id: number, dto: UpdateVariantDto): Promise<{
+    updateColor(id: number, dto: UpdateColorDto): Promise<{
+        variants: {
+            id: number;
+            size: string;
+            stockQuantity: number;
+            sku: string;
+            colorId: number;
+        }[];
+    } & {
         id: number;
-        size: string;
-        color: string;
-        stockQuantity: number;
-        sku: string;
+        name: string;
         img: string | null;
         productId: number;
     }>;
-    remove(id: number): Promise<{
+    removeColor(id: number): Promise<{
         id: number;
-        size: string;
-        color: string;
-        stockQuantity: number;
-        sku: string;
+        name: string;
         img: string | null;
         productId: number;
+    }>;
+    createVariant(colorId: number, dto: CreateVariantDto): Promise<{
+        id: number;
+        size: string;
+        stockQuantity: number;
+        sku: string;
+        colorId: number;
+    }>;
+    updateVariant(id: number, dto: UpdateVariantDto): Promise<{
+        id: number;
+        size: string;
+        stockQuantity: number;
+        sku: string;
+        colorId: number;
+    }>;
+    removeVariant(id: number): Promise<{
+        id: number;
+        size: string;
+        stockQuantity: number;
+        sku: string;
+        colorId: number;
     }>;
 }

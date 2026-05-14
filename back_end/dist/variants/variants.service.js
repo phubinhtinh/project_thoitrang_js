@@ -17,27 +17,69 @@ let VariantsService = class VariantsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async findByProduct(productId) {
-        return this.prisma.productVariant.findMany({
+    async findColorsByProduct(productId) {
+        return this.prisma.productColor.findMany({
             where: { productId },
+            include: { variants: true },
+            orderBy: { id: 'asc' },
         });
     }
-    async create(productId, dto) {
+    async createColor(productId, dto) {
         const product = await this.prisma.product.findUnique({ where: { id: productId } });
         if (!product)
             throw new common_1.NotFoundException('Sản phẩm không tồn tại');
-        return this.prisma.productVariant.create({
+        return this.prisma.productColor.create({
             data: {
                 productId,
+                name: dto.name,
+                img: dto.img,
+                variants: {
+                    create: dto.variants.map((v) => ({
+                        size: v.size,
+                        stockQuantity: v.stockQuantity,
+                        sku: v.sku,
+                    })),
+                },
+            },
+            include: { variants: true },
+        });
+    }
+    async updateColor(id, dto) {
+        const color = await this.prisma.productColor.findUnique({ where: { id } });
+        if (!color)
+            throw new common_1.NotFoundException('Màu không tồn tại');
+        return this.prisma.productColor.update({
+            where: { id },
+            data: { name: dto.name, img: dto.img },
+            include: { variants: true },
+        });
+    }
+    async removeColor(id) {
+        const color = await this.prisma.productColor.findUnique({ where: { id } });
+        if (!color)
+            throw new common_1.NotFoundException('Màu không tồn tại');
+        const count = await this.prisma.productColor.count({
+            where: { productId: color.productId },
+        });
+        if (count <= 1) {
+            throw new common_1.BadRequestException('Không thể xóa màu cuối cùng. Mỗi sản phẩm phải có ít nhất 1 màu.');
+        }
+        return this.prisma.productColor.delete({ where: { id } });
+    }
+    async createVariant(colorId, dto) {
+        const color = await this.prisma.productColor.findUnique({ where: { id: colorId } });
+        if (!color)
+            throw new common_1.NotFoundException('Màu không tồn tại');
+        return this.prisma.productVariant.create({
+            data: {
+                colorId,
                 size: dto.size,
-                color: dto.color,
                 stockQuantity: dto.stockQuantity,
                 sku: dto.sku,
-                img: dto.img,
             },
         });
     }
-    async update(id, dto) {
+    async updateVariant(id, dto) {
         const variant = await this.prisma.productVariant.findUnique({ where: { id } });
         if (!variant)
             throw new common_1.NotFoundException('Biến thể không tồn tại');
@@ -46,15 +88,15 @@ let VariantsService = class VariantsService {
             data: dto,
         });
     }
-    async remove(id) {
+    async removeVariant(id) {
         const variant = await this.prisma.productVariant.findUnique({ where: { id } });
         if (!variant)
             throw new common_1.NotFoundException('Biến thể không tồn tại');
         const count = await this.prisma.productVariant.count({
-            where: { productId: variant.productId },
+            where: { colorId: variant.colorId },
         });
         if (count <= 1) {
-            throw new common_1.BadRequestException('Không thể xóa biến thể cuối cùng. Mỗi sản phẩm phải có ít nhất 1 biến thể.');
+            throw new common_1.BadRequestException('Không thể xóa size cuối cùng. Mỗi màu phải có ít nhất 1 size.');
         }
         return this.prisma.productVariant.delete({ where: { id } });
     }

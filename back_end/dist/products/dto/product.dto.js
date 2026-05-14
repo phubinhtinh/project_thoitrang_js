@@ -9,50 +9,61 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateProductDto = exports.CreateProductDto = exports.ProductVariantInlineDto = void 0;
+exports.UpdateProductDto = exports.CreateProductDto = exports.ProductColorInlineDto = exports.VariantSizeDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
-class ProductVariantInlineDto {
+class VariantSizeDto {
     size;
-    color;
     stockQuantity;
     sku;
-    img;
 }
-exports.ProductVariantInlineDto = ProductVariantInlineDto;
+exports.VariantSizeDto = VariantSizeDto;
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], ProductVariantInlineDto.prototype, "size", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], ProductVariantInlineDto.prototype, "color", void 0);
+], VariantSizeDto.prototype, "size", void 0);
 __decorate([
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
     (0, class_transformer_1.Type)(() => Number),
     __metadata("design:type", Number)
-], ProductVariantInlineDto.prototype, "stockQuantity", void 0);
+], VariantSizeDto.prototype, "stockQuantity", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], ProductVariantInlineDto.prototype, "sku", void 0);
+], VariantSizeDto.prototype, "sku", void 0);
+class ProductColorInlineDto {
+    name;
+    img;
+    variants;
+}
+exports.ProductColorInlineDto = ProductColorInlineDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], ProductColorInlineDto.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], ProductVariantInlineDto.prototype, "img", void 0);
+], ProductColorInlineDto.prototype, "img", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayMinSize)(1, { message: 'Mỗi màu phải có ít nhất 1 size' }),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => VariantSizeDto),
+    __metadata("design:type", Array)
+], ProductColorInlineDto.prototype, "variants", void 0);
 class CreateProductDto {
     categoryId;
     name;
     description;
     basePrice;
     discountPrice;
-    variants;
+    colors;
 }
 exports.CreateProductDto = CreateProductDto;
 __decorate([
@@ -83,11 +94,11 @@ __decorate([
 ], CreateProductDto.prototype, "discountPrice", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.ArrayMinSize)(1, { message: 'Sản phẩm phải có ít nhất 1 biến thể' }),
+    (0, class_validator_1.ArrayMinSize)(1, { message: 'Sản phẩm phải có ít nhất 1 màu' }),
     (0, class_validator_1.ValidateNested)({ each: true }),
-    (0, class_transformer_1.Type)(() => ProductVariantInlineDto),
+    (0, class_transformer_1.Type)(() => ProductColorInlineDto),
     __metadata("design:type", Array)
-], CreateProductDto.prototype, "variants", void 0);
+], CreateProductDto.prototype, "colors", void 0);
 class UpdateProductDto {
     categoryId;
     name;
