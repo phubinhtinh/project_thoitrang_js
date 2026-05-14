@@ -27,36 +27,10 @@ export class ReviewsService {
   }
 
   async create(userId: number, productId: number, dto: CreateReviewDto) {
-    // Kiểm tra đã mua và đã giao thành công chưa
-    const deliveredOrder = await this.prisma.order.findFirst({
-      where: {
-        userId,
-        status: 'delivered',
-        items: {
-          some: {
-            variant: {
-              color: {
-                productId,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!deliveredOrder) {
-      throw new BadRequestException(
-        'Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và nhận hàng thành công',
-      );
-    }
-
-    // Kiểm tra đã đánh giá chưa
-    const existingReview = await this.prisma.review.findFirst({
-      where: { userId, productId },
-    });
-
-    if (existingReview) {
-      throw new ConflictException('Bạn đã đánh giá sản phẩm này rồi');
+    // Kiểm tra sản phẩm tồn tại
+    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+    if (!product) {
+      throw new NotFoundException('Sản phẩm không tồn tại');
     }
 
     return this.prisma.review.create({
@@ -65,6 +39,9 @@ export class ReviewsService {
         productId,
         rating: dto.rating,
         comment: dto.comment,
+      },
+      include: {
+        user: { select: { id: true, fullName: true } },
       },
     });
   }
