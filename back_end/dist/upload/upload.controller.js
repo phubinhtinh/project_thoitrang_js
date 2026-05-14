@@ -54,7 +54,6 @@ __decorate([
         storage: (0, multer_s3_1.default)({
             s3: s3,
             bucket: process.env.AWS_S3_BUCKET_NAME || 'shopthoitrang-images-2026',
-            acl: 'public-read',
             contentType: multer_s3_1.default.AUTO_CONTENT_TYPE,
             key: (_req, file, cb) => {
                 const safeName = file.originalname

@@ -35,7 +35,6 @@ export class UploadController {
       storage: multerS3({
         s3: s3,
         bucket: process.env.AWS_S3_BUCKET_NAME || 'shopthoitrang-images-2026',
-        acl: 'public-read', // Đảm bảo file được truy cập public (nếu bucket hỗ trợ)
         contentType: multerS3.AUTO_CONTENT_TYPE,
         key: (_req, file, cb) => {
           const safeName = file.originalname
