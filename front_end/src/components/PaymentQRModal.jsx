@@ -118,24 +118,9 @@ export default function PaymentQRModal({ open, orderId, amount, onClose, onConfi
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="px-8 py-6 border-t border-outline-variant/20 flex flex-col sm:flex-row gap-3 sticky bottom-0 bg-surface">
-          <button
-            onClick={() => {
-              toast('Bạn có thể thanh toán sau từ trang Đơn Hàng', { icon: '🕒' });
-              onClose();
-            }}
-            className="flex-1 py-4 font-label uppercase tracking-[0.2em] text-[11px] border border-outline-variant/40 hover:bg-surface-container-low transition-colors"
-          >
-            Để sau
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={confirming}
-            className="flex-1 py-4 font-label uppercase tracking-[0.2em] text-[11px] bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            {confirming ? 'Đang xác nhận...' : 'Tôi đã chuyển khoản'}
-          </button>
+        {/* Footer */}
+        <div className="px-8 py-4 border-t border-outline-variant/20 text-center">
+          <p className="font-body text-xs text-secondary">Sau khi chuyển khoản, đơn hàng sẽ được xác nhận tự động.</p>
         </div>
       </div>
     </div>
