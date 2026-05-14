@@ -67,7 +67,7 @@ export default function SearchResultsPage() {
             {products.map((p) => (
               <Link key={p.id} to={`/products/${p.id}`} className="group cursor-pointer">
                 <div className="relative aspect-[3/4] bg-surface-variant overflow-hidden mb-5">
-                  {p.variants?.[0]?.img ? <img src={p.variants[0].img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/> : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-4xl text-outline-variant">image</span></div>}
+                  {p.colors?.[0]?.img ? <img src={p.colors[0].img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/> : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-4xl text-outline-variant">image</span></div>}
                 </div>
                 <div className="flex justify-between items-start">
                   <div><h2 className="font-body text-sm font-medium line-clamp-1">{p.name}</h2><span className="font-label text-xs text-secondary">{p.category?.name}</span></div>
